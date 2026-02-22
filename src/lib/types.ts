@@ -37,7 +37,7 @@ export type OrderStatus =
   | 'shipped'
   | 'arrived_dubai'
   | 'arrived_benghazi'
-  | 'arrived_tobruk'
+  | 'arrived_tripoli'
   | 'out_for_delivery'
   | 'delivered'
   | 'cancelled'
