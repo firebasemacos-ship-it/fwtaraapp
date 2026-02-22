@@ -242,7 +242,7 @@ const AddTemporaryBatchForm = () => {
 
     return (
         <>
-            <header className="bg-card/30 backdrop-blur-lg border-b p-4 flex justify-between items-center shadow-sm sticky top-0 z-30">
+            <header className="bg-white dark:bg-slate-900 border-b p-4 flex justify-between items-center shadow-sm sticky top-0 z-30">
                 <div className="flex items-center gap-4">
                     <Button variant="ghost" size="icon" onClick={() => router.back()}>
                         <ArrowLeft className="w-6 h-6" />
@@ -315,7 +315,7 @@ const AddTemporaryBatchForm = () => {
                 </Card>
 
                 {subOrders.map((order, index) => (
-                    <Card key={order.subOrderId} className="relative overflow-hidden bg-card/60 backdrop-blur-lg border-border">
+                    <Card key={order.subOrderId} className="relative overflow-hidden bg-white dark:bg-slate-900 border-border">
                         <CardHeader className='bg-muted/30'>
                             <div className="flex justify-between items-center">
                                 <CardTitle>الطلب الفرعي للعميل: {order.customerName || `طلب #${index + 1}`}</CardTitle>
@@ -412,7 +412,7 @@ const AddTemporaryBatchForm = () => {
                     إضافة طلب فرعي آخر للفاتورة
                 </Button>
 
-                <Card className="sticky bottom-4 z-10 shadow-xl border-primary border-2 bg-card/80 backdrop-blur-lg">
+                <Card className="sticky bottom-4 z-10 shadow-xl border-primary border-2 bg-white dark:bg-slate-900">
                     <CardHeader>
                         <CardTitle className="text-center text-primary">الإجماليات الكلية للفاتورة المجمعة</CardTitle>
                     </CardHeader>
@@ -462,7 +462,7 @@ const DatePopover = ({ date, setDate }: { date?: Date | string, setDate: (date?:
                 {date ? format(new Date(date), "PPP") : <span>اختر التاريخ</span>}
             </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 bg-card/80 backdrop-blur-lg" align="start">
+        <PopoverContent className="w-auto p-0 bg-white dark:bg-slate-900" align="start">
             <Calendar mode="single" selected={date ? new Date(date) : undefined} onSelect={setDate} initialFocus />
         </PopoverContent>
     </Popover>

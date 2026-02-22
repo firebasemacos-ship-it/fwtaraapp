@@ -76,7 +76,7 @@ export default function RepresentativeLoginPage() {
       dir="rtl"
     >
       <main className="w-full max-w-md mx-auto">
-        <div className="bg-card/60 backdrop-blur-lg rounded-2xl border shadow-lg p-8 text-center">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border shadow-lg p-8 text-center">
           <Logo />
 
           <div className="mb-6">

@@ -185,13 +185,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--background))] text-foreground font-sans selection:bg-primary/30" dir="rtl">
-      {/* Dynamic Background Effect */}
-      <div className="fixed inset-0 bg-slate-50 dark:bg-[#0f172a] -z-20 transition-colors duration-500" />
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/5 dark:bg-primary/10 blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/10 blur-[120px] animate-pulse delay-700" />
-      </div>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-foreground font-sans selection:bg-primary/30" dir="rtl">
 
       <TooltipProvider>
         {/* Mobile Sidebar Overlay */}
@@ -210,18 +204,15 @@ export default function AdminLayout({
         {/* Floating Sidebar */}
         <aside
           className={cn(
-            'fixed top-4 right-4 bottom-4 z-40 w-72 rounded-3xl transition-transform duration-300 ease-in-out no-print',
-            'glass-premium border-black/5 dark:border-white/5 flex flex-col shadow-2xl', // Premium Glass Style
-            isSidebarOpen ? 'translate-x-0' : 'translate-x-[110%]', // Use 110% to fully hide off-screen to right in RTL (positive x direction)?? 
-            // In RTL, "right-0" is the starting edge. Translate-x-full moves it LEFT? No.
-            // Let's rely on standard logic: if hidden, it should be pushed out.
-            // Tailwind RTL support can be tricky. Let's use standard placement.
+            'fixed top-0 right-0 bottom-0 z-40 w-72 transition-transform duration-300 ease-in-out no-print',
+            'bg-white dark:bg-slate-900 border-l border-slate-100 dark:border-slate-800 flex flex-col shadow-xl',
+            isSidebarOpen ? 'translate-x-0' : 'translate-x-[110%]',
             'md:translate-x-0'
           )}
         >
-          <div className="flex items-center justify-between p-6 border-b border-white/10">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-800">
             <Link href="/admin/dashboard" className="flex items-center gap-3 group">
-              <div className="relative w-10 h-10 flex items-center justify-center bg-gradient-to-br from-primary to-accent rounded-xl shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all duration-500">
+              <div className="relative w-10 h-10 flex items-center justify-center bg-primary rounded-xl shadow-md">
                 <Image src={logo} alt="Logo" width={28} height={28} className="brightness-0 invert" />
               </div>
               <h1 className="text-2xl font-bold text-foreground tracking-tight">فوترة</h1>
@@ -270,9 +261,9 @@ export default function AdminLayout({
             </ul>
           </nav>
 
-          <div className="p-4 border-t border-white/10">
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/5">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 flex items-center justify-center text-xs font-bold text-black border-2 border-white dark:border-slate-900">
+          <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+              <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white">
                 {currentManager?.name?.[0] || 'A'}
               </div>
               <div className="flex-1 min-w-0">
@@ -283,11 +274,11 @@ export default function AdminLayout({
           </div>
         </aside>
 
-        <div className="md:pr-[20rem] transition-[padding] duration-300 h-full"> {/* Increased padding for floating sidebar */}
-          <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 px-6 md:px-8 no-print pt-4">
-            {/* Glass Header */}
-            <div className="w-full h-16 rounded-2xl glass flex items-center justify-between px-4">
-              <div className="flex items-center gap-4">
+        <div className="md:pr-[18rem] transition-[padding] duration-300 h-full">
+          <header className="sticky top-0 z-30 no-print">
+            {/* Clean Header */}
+            <div className="w-full bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between px-6">
+              <div className="flex items-center gap-4 h-16">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -297,7 +288,7 @@ export default function AdminLayout({
                   <Menu className="h-6 w-6" />
                   <span className="sr-only">Open sidebar</span>
                 </Button>
-                <h1 className="font-bold text-lg text-gradient bg-clip-text bg-gradient-to-r from-primary to-accent">{currentPageTitle}</h1>
+                <h1 className="font-bold text-lg text-primary">{currentPageTitle}</h1>
               </div>
 
               <div className="flex items-center gap-2">
@@ -322,7 +313,7 @@ export default function AdminLayout({
             </div>
           </header>
 
-          <main className="p-4 sm:p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <main className="p-4 sm:p-6 md:p-8">
             {children}
           </main>
         </div>

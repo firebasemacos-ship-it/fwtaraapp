@@ -233,7 +233,7 @@ const AdminUsersPage = () => {
       dir="rtl"
     >
       <div className="flex items-center justify-between mb-6">
-        <motion.h1 variants={itemVariant} className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">إدارة المستخدمين</motion.h1>
+        <motion.h1 variants={itemVariant} className="text-2xl font-bold text-primary">إدارة المستخدمين</motion.h1>
         <motion.div variants={itemVariant} className="flex items-center gap-2">
           <Button size="sm" variant="outline" className="gap-1 bg-white/50 hover:bg-white/80" onClick={handleDownloadCSV} disabled={isLoading}>
             <Download className="h-4 w-4" />
@@ -288,7 +288,7 @@ const AdminUsersPage = () => {
       </div>
 
       <motion.div variants={itemVariant}>
-        <Card className="glass-card border-none mx-0 sm:mx-0">
+        <Card className="glass-card mx-0 sm:mx-0">
           <CardHeader>
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <CardTitle>قائمة المستخدمين</CardTitle>
@@ -304,7 +304,7 @@ const AdminUsersPage = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="rounded-md border bg-white/50 dark:bg-black/20 backdrop-blur-sm overflow-hidden">
+            <div className="rounded-md border bg-white dark:bg-slate-900 overflow-hidden">
               <Table>
                 <TableHeader className="bg-secondary/50">
                   <TableRow>

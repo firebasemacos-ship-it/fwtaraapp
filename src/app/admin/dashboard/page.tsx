@@ -23,7 +23,21 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Manager, Order } from '@/lib/types';
+import { Manager, Order, OrderStatus } from '@/lib/types';
+
+const statusTranslations: Record<OrderStatus, string> = {
+    pending: 'قيد التجهيز',
+    processed: 'تم التنفيذ',
+    ready: 'تم التجهيز',
+    shipped: 'تم الشحن',
+    arrived_dubai: 'وصل دبي',
+    arrived_benghazi: 'وصل بنغازي',
+    arrived_tripoli: 'وصل طرابلس',
+    out_for_delivery: 'مع المندوب',
+    delivered: 'تم التسليم',
+    cancelled: 'ملغي',
+    paid: 'مدفوع'
+};
 import { getManagerById, getTransactions, getExpenses, getOrders } from '@/lib/actions';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
@@ -250,7 +264,7 @@ const AdminDashboardPage = () => {
                             variants={itemVariant}
                             className="text-4xl font-black tracking-tight text-foreground mb-2"
                         >
-                            مرحباً، <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">{manager.name}</span> 👋
+                            مرحباً، <span className="text-primary">{manager.name}</span> 👋
                         </motion.h1>
                     ) : (
                         <div className="flex items-center gap-2">
@@ -463,11 +477,12 @@ const AdminDashboardPage = () => {
                                                 <p className="text-sm font-semibold">{new Date(order.operationDate).toLocaleDateString('ar-EG')}</p>
                                             </div>
                                             <div className="w-24 text-center">
-                                                <span className={`text-[11px] font-bold px-3 py-1 rounded-full ${order.status === 'delivered' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' :
-                                                    order.status === 'pending' ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400' :
-                                                        'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
+                                                <span className={`text-[11px] font-bold px-3 py-1 rounded-full ${order.status === 'delivered' || order.status === 'paid' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' :
+                                                        order.status === 'cancelled' ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' :
+                                                            order.status === 'pending' ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                                                                'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
                                                     }`}>
-                                                    {order.status === 'delivered' ? 'توصيل' : order.status === 'pending' ? 'انتظار' : 'قيد النقل'}
+                                                    {statusTranslations[order.status] || order.status}
                                                 </span>
                                             </div>
                                             <Link href={`/admin/orders/${order.id}`}>

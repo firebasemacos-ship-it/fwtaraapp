@@ -370,7 +370,7 @@ const AdminOrdersPage = () => {
       dir="rtl"
     >
       <div className="flex items-center justify-between mb-6">
-        <motion.h1 variants={itemVariant} className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">إدارة الطلبات</motion.h1>
+        <motion.h1 variants={itemVariant} className="text-2xl font-bold text-primary">إدارة الطلبات</motion.h1>
         <motion.div variants={itemVariant}>
           <Button size="sm" className="gap-1 shadow-lg hover:shadow-primary/50 transition-shadow" onClick={() => router.push('/admin/orders/add')}>
             <PlusCircle className="h-4 w-4" />
@@ -380,7 +380,7 @@ const AdminOrdersPage = () => {
       </div>
 
       <motion.div variants={itemVariant} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card className="glass-card border-none">
+        <Card className="glass-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">إجمالي قيمة الطلبات</CardTitle>
             <DollarSign className="h-4 w-4 text-primary" />
@@ -390,7 +390,7 @@ const AdminOrdersPage = () => {
             <p className="text-xs text-muted-foreground">مجموع كل الطلبات (غير الملغية) المعروضة</p>
           </CardContent>
         </Card>
-        <Card className="glass-card border-none">
+        <Card className="glass-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">إجمالي الديون</CardTitle>
             <DollarSign className="h-4 w-4 text-destructive" />
@@ -400,7 +400,7 @@ const AdminOrdersPage = () => {
             <p className="text-xs text-muted-foreground">مجموع الديون المتبقية للطلبات المعروضة</p>
           </CardContent>
         </Card>
-        <Card className="glass-card border-none">
+        <Card className="glass-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">إجمالي صافي الأرباح</CardTitle>
             <TrendingUp className="h-4 w-4 text-green-500" />
@@ -415,7 +415,7 @@ const AdminOrdersPage = () => {
       </motion.div>
 
       <motion.div variants={itemVariant}>
-        <Card className="glass-card border-none">
+        <Card className="glass-card">
           <CardHeader>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <CardTitle>قائمة الطلبات</CardTitle>
@@ -525,7 +525,7 @@ const AdminOrdersPage = () => {
                 </DropdownMenu>
               </motion.div>
             )}
-            <div className="rounded-md border bg-white/50 dark:bg-black/20 backdrop-blur-sm overflow-hidden">
+            <div className="rounded-md border bg-white dark:bg-slate-900 overflow-hidden">
               <Table>
                 <TableHeader className="bg-secondary/50">
                   <TableRow>

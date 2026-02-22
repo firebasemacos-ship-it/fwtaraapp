@@ -96,36 +96,36 @@
 
 @layer utilities {
   .glass {
-    @apply bg-white/70 dark:bg-black/60 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-lg;
+    @apply bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm;
   }
 
   .glass-card {
-    @apply bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-xl transition-all duration-300 hover:shadow-2xl hover:bg-white/70 dark:hover:bg-slate-900/70 hover:border-black/10 dark:hover:border-white/20;
+    @apply bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm transition-all duration-200 hover:shadow-md;
   }
 
   .glass-premium {
-    @apply bg-gradient-to-br from-white/80 to-slate-50/50 dark:from-slate-900/90 dark:to-slate-900/50 backdrop-blur-2xl border border-white/20 dark:border-white/10;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    @apply bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800;
+    box-shadow: 0 2px 16px 0 rgba(46, 104, 177, 0.07);
   }
 
   .dark .glass-premium {
-    box-shadow: 0 8px 32px 0 #1f26875e;
+    box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.3);
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
+    @apply text-primary;
   }
 
   .text-gradient-gold {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#faca12] to-yellow-500;
+    @apply text-accent;
   }
 
   .text-glow {
-    text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+    text-shadow: none;
   }
 
   .card-gradient {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+    background: transparent;
   }
 }
 
