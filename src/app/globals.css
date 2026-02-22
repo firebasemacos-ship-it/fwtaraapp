@@ -9,83 +9,84 @@
     /* Core Backgrounds - Light Mode */
     /* Light Mode: White background with Navy text */
     --background: 0 0% 100%;
-    --foreground: 213 62% 18%;
-    /* Navy Text */
+    --foreground: 213 59% 20%;
+    /* Dark tinted blue */
 
     /* Cards & Surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 213 62% 18%;
+    --card-foreground: 213 59% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 213 62% 18%;
+    --popover-foreground: 213 59% 20%;
 
     /* Brand Colors */
-    /* Primary: Navy for main actions/heaviness in light mode */
-    --primary: 213 62% 18%;
-    --primary-foreground: 43 44% 69%;
-    /* Gold text on Navy */
+    /* Primary: Blue #2e68b1 */
+    --primary: 213 59% 44%;
+    --primary-foreground: 0 0% 100%;
+    /* White text on Blue */
 
     --secondary: 210 40% 96.1%;
-    --secondary-foreground: 213 62% 18%;
+    --secondary-foreground: 213 59% 44%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    /* Accent: Gold */
-    --accent: 43 44% 69%;
-    --accent-foreground: 213 62% 18%;
+    /* Accent: Yellow #faca12 */
+    --accent: 47 96% 53%;
+    --accent-foreground: 213 59% 20%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 213 62% 18%;
-    /* Navy Border for definition */
-    --input: 213 62% 18%;
-    --ring: 43 44% 69%;
-    /* Gold Ring */
+    --border: 213 59% 44%;
+    /* Blue Border for definition */
+    --input: 213 59% 44%;
+    --ring: 47 96% 53%;
+    /* Yellow Ring */
 
     --radius: 1rem;
 
     /* Custom Premium Variables */
-    --glass-border: 213 62% 18%;
+    --glass-border: 213 59% 44%;
     --glass-highlight: 255 255 255 1;
   }
 
   .dark {
-    /* Premium Dark Mode - Deep Navy Background with Gold Accents */
+    /* Premium Dark Mode - Deep Navy Background with Yellow Accents */
 
-    /* Background: Deep Navy */
-    --background: 213 62% 18%;
-    --foreground: 43 44% 69%;
-    /* Gold Text */
+    /* Background: Deep dark blue */
+    --background: 213 62% 14%;
+    --foreground: 47 96% 53%;
+    /* Yellow Text */
 
     /* Cards: Slightly darker/lighter Navy to differentiate */
-    --card: 213 62% 14%;
-    --card-foreground: 43 44% 69%;
+    --card: 213 62% 10%;
+    --card-foreground: 0 0% 100%;
+    /* Changed from Yellow to White for legibility */
 
-    --popover: 213 62% 14%;
-    --popover-foreground: 43 44% 69%;
+    --popover: 213 62% 10%;
+    --popover-foreground: 47 96% 53%;
 
-    /* Primary: Gold (Buttons etc) */
-    --primary: 43 44% 69%;
-    --primary-foreground: 213 62% 18%;
-    /* Navy text on Gold */
+    /* Primary: Yellow (Buttons etc) */
+    --primary: 47 96% 53%;
+    --primary-foreground: 213 62% 14%;
+    /* Navy text on Yellow */
 
-    --secondary: 213 50% 25%;
-    --secondary-foreground: 43 44% 69%;
+    --secondary: 213 59% 25%;
+    --secondary-foreground: 47 96% 53%;
 
-    --muted: 213 50% 25%;
+    --muted: 213 59% 20%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 43 44% 69%;
-    --accent-foreground: 213 62% 18%;
+    --accent: 47 96% 53%;
+    --accent-foreground: 213 62% 14%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 43 44% 69%;
-    --input: 43 44% 69%;
-    --ring: 43 44% 69%;
+    --border: 47 96% 53%;
+    --input: 47 96% 53%;
+    --ring: 47 96% 53%;
 
     /* Custom Premium Variables Dark */
     --glass-border: 255 255 255 0.08;
@@ -116,7 +117,7 @@
   }
 
   .text-gradient-gold {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-orange-300 to-yellow-600;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#faca12] to-yellow-500;
   }
 
   .text-glow {

@@ -128,9 +128,9 @@ export default function LoginPage() {
     return (
         <div className="flex min-h-screen bg-background text-foreground overflow-hidden">
             {/* Left Panel - Visuals & Branding (Desktop) */}
-            <div className="hidden lg:flex w-1/2 bg-sky-950 relative items-center justify-center overflow-hidden">
+            <div className="hidden lg:flex w-1/2 bg-slate-950 relative items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1578575437130-527eed3abbec?q=80&w=2940&auto=format&fit=crop')] bg-cover bg-center opacity-20 mix-blend-overlay"></div>
-                <div className="absolute inset-0 bg-gradient-to-br from-sky-900/90 to-slate-900/90"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/90 to-slate-900/90"></div>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -159,16 +159,16 @@ export default function LoginPage() {
                         />
                     </motion.div>
                     <h1 className="text-4xl font-bold text-white mb-6">شركة فوترة</h1>
-                    <p className="text-xl text-sky-100/80 leading-relaxed">
+                    <p className="text-xl text-primary-foreground/90 leading-relaxed">
                         شريكك الموثوق في عالم الخدمات اللوجستية. نضمن وصول شحناتك بأمان وسرعة إلى وجهتها.
                     </p>
                     <div className="mt-12 grid grid-cols-2 gap-6">
                         <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10">
-                            <Ship className="w-10 h-10 text-sky-300 mx-auto mb-4" />
+                            <Ship className="w-10 h-10 text-accent mx-auto mb-4" />
                             <h3 className="text-white font-semibold">شحن دولي</h3>
                         </div>
                         <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10">
-                            <Package className="w-10 h-10 text-sky-300 mx-auto mb-4" />
+                            <Package className="w-10 h-10 text-accent mx-auto mb-4" />
                             <h3 className="text-white font-semibold">توصيل سريع</h3>
                         </div>
                     </div>
@@ -176,12 +176,12 @@ export default function LoginPage() {
 
                 {/* Animated Shapes */}
                 <motion.div
-                    className="absolute top-1/4 left-1/4 w-96 h-96 bg-sky-500/20 rounded-full blur-3xl"
+                    className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/30 rounded-full blur-3xl"
                     animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
                     transition={{ duration: 8, repeat: Infinity }}
                 />
                 <motion.div
-                    className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"
+                    className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl"
                     animate={{ scale: [1.2, 1, 1.2], opacity: [0.3, 0.5, 0.3] }}
                     transition={{ duration: 8, repeat: Infinity, delay: 4 }}
                 />
@@ -220,28 +220,28 @@ export default function LoginPage() {
                     >
                         <div className="space-y-4">
                             <div className="relative group">
-                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-sky-600 transition-colors">
+                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
                                     <PhoneCall className="h-5 w-5" />
                                 </div>
                                 <Input
                                     dir="rtl"
                                     type="text"
                                     placeholder="رقم الهاتف"
-                                    className="h-12 pr-10 text-right bg-slate-50 border-slate-200 focus:bg-white focus:border-sky-500 transition-all duration-200"
+                                    className="h-12 pr-10 text-right bg-slate-50 border-slate-200 focus:bg-white focus:border-primary transition-all duration-200"
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value)}
                                     disabled={isLoading}
                                 />
                             </div>
                             <div className="relative group">
-                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-sky-600 transition-colors">
+                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
                                     <Lock className="h-5 w-5" />
                                 </div>
                                 <Input
                                     dir="rtl"
                                     type="password"
                                     placeholder="كلمة المرور"
-                                    className="h-12 pr-10 text-right bg-slate-50 border-slate-200 focus:bg-white focus:border-sky-500 transition-all duration-200"
+                                    className="h-12 pr-10 text-right bg-slate-50 border-slate-200 focus:bg-white focus:border-primary transition-all duration-200"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     disabled={isLoading}
@@ -251,7 +251,7 @@ export default function LoginPage() {
 
                         <Button
                             type="submit"
-                            className="w-full h-12 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-xl shadow-lg shadow-sky-600/20 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                            className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl shadow-lg shadow-primary/20 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
                             disabled={isLoading}
                         >
                             {isLoading ? (
@@ -275,9 +275,9 @@ export default function LoginPage() {
                         className="pt-8 grid grid-cols-2 gap-4"
                     >
                         <Link href="/dashboard/track-shipment" className="group">
-                            <div className="p-4 rounded-xl border border-slate-100 bg-white hover:border-sky-200 hover:shadow-md transition-all duration-300 text-center space-y-2 h-full">
-                                <div className="w-10 h-10 bg-sky-50 rounded-full flex items-center justify-center mx-auto group-hover:bg-sky-100 transition-colors">
-                                    <Ship className="w-5 h-5 text-sky-600" />
+                            <div className="p-4 rounded-xl border border-slate-100 bg-white hover:border-primary/30 hover:shadow-md transition-all duration-300 text-center space-y-2 h-full">
+                                <div className="w-10 h-10 bg-primary/5 rounded-full flex items-center justify-center mx-auto group-hover:bg-primary/10 transition-colors">
+                                    <Ship className="w-5 h-5 text-primary" />
                                 </div>
                                 <h3 className="font-medium text-slate-700">تتبع شحنتك</h3>
                             </div>
@@ -299,7 +299,7 @@ export default function LoginPage() {
                         className="pt-12 text-center"
                     >
                         <p className="text-sm text-slate-400 mb-2">هل تواجه مشكلة؟</p>
-                        <a href="tel:0946891207" className="inline-flex items-center gap-2 text-sky-600 font-semibold hover:text-sky-700 transition-colors bg-sky-50 px-4 py-2 rounded-full">
+                        <a href="tel:0946891207" className="inline-flex items-center gap-2 text-primary font-semibold hover:text-primary/80 transition-colors bg-primary/5 px-4 py-2 rounded-full">
                             <Phone className="w-4 h-4" />
                             <span dir="ltr">0946 691 233</span>
                         </a>

@@ -351,9 +351,9 @@ const AdminDashboardPage = () => {
                                     <div className="w-full md:w-1/2 h-[300px]">
                                         <PremiumDonutChart
                                             data={[
-                                                { name: "صافي الأرباح", value: dailyData.netProfit > 0 ? dailyData.netProfit : 0, color: "#D2C18D" }, // Gold
+                                                { name: "صافي الأرباح", value: dailyData.netProfit > 0 ? dailyData.netProfit : 0, color: "#faca12" }, // Yellow
                                                 { name: "المصاريف", value: dailyData.expenses, color: "#ef4444" }, // Red
-                                                { name: "تكلفة المبيعات", value: dailyData.revenue - dailyData.netProfit - dailyData.expenses, color: "#112A49" } // Navy
+                                                { name: "تكلفة المبيعات", value: dailyData.revenue - dailyData.netProfit - dailyData.expenses, color: "#2e68b1" } // Blue
                                             ].filter(d => d.value > 0)}
                                             innerRadius={80}
                                             outerRadius={120}
@@ -361,7 +361,7 @@ const AdminDashboardPage = () => {
                                     </div>
                                     <div className="flex flex-col gap-4 w-full md:w-auto p-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-4 h-4 rounded-full bg-[#D2C18D] shadow-[0_0_10px_#D2C18D]" />
+                                            <div className="w-4 h-4 rounded-full bg-[#faca12] shadow-[0_0_10px_#faca12]" />
                                             <div>
                                                 <div>
                                                     <p className="text-muted-foreground text-sm">صافي الأرباح</p>
@@ -383,7 +383,7 @@ const AdminDashboardPage = () => {
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            <div className="w-4 h-4 rounded-full bg-[#112A49] shadow-[0_0_10px_#112A49]" />
+                                            <div className="w-4 h-4 rounded-full bg-[#2e68b1] shadow-[0_0_10px_#2e68b1]" />
                                             <div>
                                                 <div>
                                                     <p className="text-muted-foreground text-sm">تكلفة المبيعات</p>
