@@ -15,7 +15,9 @@ import { useTheme } from "@/hooks/useTheme";
 
 const Logo = () => (
   <div className="flex items-center justify-center mb-8">
-    <Image src={logo} alt="Logo" width={100} height={100} className="mx-auto" />
+    <div className="w-24 h-24 bg-[#2e68b1] rounded-2xl flex items-center justify-center shadow-lg shadow-[#2e68b1]/20">
+      <Image src={logo} alt="Logo" width={70} height={70} className="object-contain" />
+    </div>
   </div>
 );
 
@@ -115,10 +117,10 @@ export default function AdminLoginPage() {
               disabled={isLoading}
             >
               {isLoading ? (
-                  <>
-                      <Loader2 className="ml-2 h-5 w-5 animate-spin" />
-                      جاري التحقق...
-                  </>
+                <>
+                  <Loader2 className="ml-2 h-5 w-5 animate-spin" />
+                  جاري التحقق...
+                </>
               ) : 'تسجيل الدخول'}
             </Button>
           </form>

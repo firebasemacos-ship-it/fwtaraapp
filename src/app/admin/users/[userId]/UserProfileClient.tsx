@@ -149,7 +149,7 @@ export const UserProfileClient = ({
                         <div className="flex justify-between items-start">
                             <div>
                                 <p className="text-muted-foreground font-medium mb-1">إجمالي الطلبات</p>
-                                <h3 className="text-3xl font-black text-foreground">{totalOrdersValue.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">د.ل</span></h3>
+                                <h3 className="text-3xl font-black text-foreground">{totalOrdersValue.toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-sm font-normal text-muted-foreground">د.ل</span></h3>
                             </div>
                             <div className="p-3 bg-blue-500/10 rounded-xl text-blue-500">
                                 <Wallet className="w-6 h-6" />
@@ -163,7 +163,7 @@ export const UserProfileClient = ({
                         <div className="flex justify-between items-start">
                             <div>
                                 <p className="text-muted-foreground font-medium mb-1">الدين المستحق</p>
-                                <h3 className="text-3xl font-black text-red-500">{totalDebt.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">د.ل</span></h3>
+                                <h3 className="text-3xl font-black text-red-500">{totalDebt.toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-sm font-normal text-muted-foreground">د.ل</span></h3>
                             </div>
                             <div className="p-3 bg-red-500/10 rounded-xl text-red-500">
                                 <CreditCard className="w-6 h-6" />
@@ -228,7 +228,7 @@ export const UserProfileClient = ({
                                                 <div className="text-left">
                                                     <p className="text-xs text-muted-foreground">المتبقي</p>
                                                     <p className={`font-bold ${order.remainingAmount > 0 ? 'text-red-500' : 'text-green-500'}`}>
-                                                        {order.remainingAmount.toLocaleString()} <span className="text-[10px]">د.ل</span>
+                                                        {order.remainingAmount.toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-[10px]">د.ل</span>
                                                     </p>
                                                 </div>
 
@@ -272,7 +272,7 @@ export const UserProfileClient = ({
                                         <div className="flex justify-between items-start mb-1">
                                             <span className="text-sm font-bold text-foreground">{tx.type === 'payment' ? 'دفعة مستلمة' : 'دين جديد'}</span>
                                             <span className={`font-mono font-bold text-sm ${tx.type === 'payment' ? 'text-green-500' : 'text-red-500'}`}>
-                                                {tx.type === 'payment' ? '+' : '-'}{tx.amount.toLocaleString()}
+                                                {tx.type === 'payment' ? '+' : '-'}{tx.amount.toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                             </span>
                                         </div>
                                         <p className="text-xs text-muted-foreground mb-1 line-clamp-2">{tx.description}</p>

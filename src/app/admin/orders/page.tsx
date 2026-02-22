@@ -361,329 +361,276 @@ const AdminOrdersPage = () => {
     toast({ title: "قيد التطوير", description: "الإسناد الجماعي للمندوبين قيد التطوير.", variant: "default" });
   }
 
+  const handleBulkPrint = () => {
+    const idsToPrint = Object.keys(selectedRows).filter(id => selectedRows[id]);
+    if (idsToPrint.length === 0) return;
+
+    const idsParam = idsToPrint.join(',');
+    window.open(`/admin/orders/bulk-print?ids=${idsParam}`, '_blank');
+
+    toast({ title: `جاري تجهيز ${idsToPrint.length} بوليصة للطباعة`, description: 'سيتم فتح صفحة الطباعة الموحدة' });
+  };
+
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
-      className="p-4 sm:p-6"
-      dir="rtl"
-    >
-      <div className="flex items-center justify-between mb-6">
-        <motion.h1 variants={itemVariant} className="text-2xl font-bold text-primary">إدارة الطلبات</motion.h1>
-        <motion.div variants={itemVariant}>
-          <Button size="sm" className="gap-1 shadow-lg hover:shadow-primary/50 transition-shadow" onClick={() => router.push('/admin/orders/add')}>
-            <PlusCircle className="h-4 w-4" />
-            إضافة طلب جديد
-          </Button>
-        </motion.div>
+    <div className="space-y-6" dir="rtl">
+      {/* Page Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">إدارة الطلبات</h1>
+          <p className="text-sm text-muted-foreground mt-1">{orders.length} طلب إجمالياً</p>
+        </div>
+        <Button className="gap-2 bg-primary text-white rounded-xl shadow-sm hover:bg-primary/90" onClick={() => router.push('/admin/orders/add')}>
+          <PlusCircle className="h-4 w-4" />
+          طلب جديد
+        </Button>
       </div>
 
-      <motion.div variants={itemVariant} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">إجمالي قيمة الطلبات</CardTitle>
-            <DollarSign className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-800 dark:text-white">{totalValue.toFixed(2)} د.ل</div>
-            <p className="text-xs text-muted-foreground">مجموع كل الطلبات (غير الملغية) المعروضة</p>
-          </CardContent>
-        </Card>
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">إجمالي الديون</CardTitle>
-            <DollarSign className="h-4 w-4 text-destructive" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">{totalDebt.toFixed(2)} د.ل</div>
-            <p className="text-xs text-muted-foreground">مجموع الديون المتبقية للطلبات المعروضة</p>
-          </CardContent>
-        </Card>
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">إجمالي صافي الأرباح</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${totalProfit >= 0 ? 'text-green-600' : 'text-destructive'}`}>
-              {totalProfit.toFixed(2)} د.ل
-            </div>
-            <p className="text-xs text-muted-foreground">مجموع أرباح الطلبات المعروضة</p>
-          </CardContent>
-        </Card>
-      </motion.div>
+      {/* Stat Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+          <p className="text-xs font-medium text-muted-foreground mb-1">إجمالي الطلبات</p>
+          <p className="text-2xl font-bold text-foreground">{filteredOrders.length}</p>
+          <p className="text-xs text-muted-foreground mt-1">طلب معروض</p>
+        </div>
+        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+          <p className="text-xs font-medium text-muted-foreground mb-1">إجمالي القيمة</p>
+          <p className="text-2xl font-bold text-foreground">{totalValue.toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="text-xs text-muted-foreground mt-1">د.ل</p>
+        </div>
+        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+          <p className="text-xs font-medium text-muted-foreground mb-1">إجمالي الديون</p>
+          <p className="text-2xl font-bold text-destructive">{totalDebt.toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="text-xs text-muted-foreground mt-1">د.ل متبقي</p>
+        </div>
+        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+          <p className="text-xs font-medium text-muted-foreground mb-1">صافي الأرباح</p>
+          <p className={`text-2xl font-bold ${totalProfit >= 0 ? 'text-green-600' : 'text-destructive'}`}>{totalProfit.toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="text-xs text-muted-foreground mt-1">د.ل</p>
+        </div>
+      </div>
 
-      <motion.div variants={itemVariant}>
-        <Card className="glass-card">
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <CardTitle>قائمة الطلبات</CardTitle>
-              <div className="relative w-full sm:w-72">
-                <Input
-                  placeholder="ابحث بالاسم، كود التتبع، أو رقم الفاتورة..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pr-10 bg-white/50 dark:bg-black/20"
-                />
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
-              </div>
-            </div>
-            {/* Filters */}
-            <div className="flex flex-col sm:flex-row gap-2 pt-4 items-center">
-              <Filter className="w-5 h-5 text-muted-foreground" />
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-[180px] bg-white/50 dark:bg-black/20">
-                  <SelectValue placeholder="فلترة بالحالة" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">كل الحالات</SelectItem>
-                  {allStatuses.map(s => <SelectItem key={s} value={s}>{statusConfig[s].text}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-                <SelectTrigger className="w-full sm:w-[180px] bg-white/50 dark:bg-black/20">
-                  <SelectValue placeholder="فلترة بالدفع" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">الكل</SelectItem>
-                  <SelectItem value="paid">مدفوع</SelectItem>
-                  <SelectItem value="unpaid">غير مدفوع</SelectItem>
-                </SelectContent>
-              </Select>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    id="date"
-                    variant={"outline"}
-                    className={cn("w-full sm:w-[260px] justify-start text-right font-normal bg-white/50 dark:bg-black/20", dateRange && "text-primary border-primary")}
-                  >
-                    <CalendarIcon className="ml-2 h-4 w-4" />
-                    {dateRange?.from ? (
-                      dateRange.to ? (
-                        `${format(dateRange.from, "d/M/y")} - ${format(dateRange.to, "d/M/y")}`
-                      ) : (format(dateRange.from, "d/M/yy"))
-                    ) : (<span>اختر فترة زمنية</span>)}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    initialFocus
-                    mode="range"
-                    defaultMonth={dateRange?.from}
-                    selected={dateRange}
-                    onSelect={setDateRange}
-                    numberOfMonths={2}
-                  />
-                </PopoverContent>
-              </Popover>
-              {dateRange && (
-                <Button variant="ghost" size="icon" onClick={() => setDateRange(undefined)}>
-                  <X className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            {selectedRowCount > 0 && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="flex items-center gap-2 p-2 mb-4 bg-primary/10 rounded-lg"
+      {/* Search & Filters */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-3">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              placeholder="ابحث بالاسم، كود التتبع، أو رقم الفاتورة..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pr-9 text-sm"
+            />
+          </div>
+          <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+            <SelectTrigger className="w-full sm:w-[160px] text-sm">
+              <SelectValue placeholder="حالة الدفع" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل الدفعات</SelectItem>
+              <SelectItem value="paid">مدفوع</SelectItem>
+              <SelectItem value="unpaid">غير مدفوع</SelectItem>
+            </SelectContent>
+          </Select>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn("w-full sm:w-auto justify-start text-sm font-normal", dateRange && "text-primary border-primary")}
               >
-                <span className="text-sm font-semibold text-primary">
-                  {selectedRowCount} طلب محدد
-                </span>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="bg-white/50">الإجراءات الجماعية</Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger>تحديث الحالة</DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent>
-                        {allStatuses.map(s => (
-                          <DropdownMenuItem key={s} onSelect={() => handleBulkUpdateStatus(s)}>
-                            {statusConfig[s].text}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger>إسناد إلى مندوب</DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent>
-                        {representatives.map(rep => (
-                          <DropdownMenuItem key={rep.id} onSelect={() => handleBulkAssignRep(rep)}>
-                            {rep.name}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-destructive" onSelect={() => setIsBulkDeleteOpen(true)}>حذف المحدد</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </motion.div>
-            )}
-            <div className="rounded-md border bg-white dark:bg-slate-900 overflow-hidden">
-              <Table>
-                <TableHeader className="bg-secondary/50">
-                  <TableRow>
-                    <TableHead className="w-[50px]">
-                      <Checkbox
-                        checked={selectedRowCount > 0 && selectedRowCount === filteredOrders.length}
-                        onCheckedChange={(checked) => handleSelectAll(!!checked)}
-                      />
-                    </TableHead>
-                    <TableHead className='text-right font-bold'>رقم الفاتورة</TableHead>
-                    <TableHead className='text-right font-bold'>كود التتبع</TableHead>
-                    <TableHead className='text-right font-bold'>اسم العميل</TableHead>
-                    <TableHead className='text-right font-bold'>المندوب</TableHead>
-                    <TableHead className='text-right font-bold'>الإجمالي</TableHead>
-                    <TableHead className='text-right font-bold'>المتبقي</TableHead>
-                    <TableHead className='text-right font-bold'>الحالة</TableHead>
-                    <TableHead><span className="sr-only">Actions</span></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
-                    <TableRow><TableCell colSpan={9} className="text-center h-24">
-                      <div className="flex items-center justify-center gap-2">
-                        <Package className="w-6 h-6 animate-bounce text-primary" />
-                        <span>جاري تحميل الطلبات...</span>
-                      </div>
-                    </TableCell></TableRow>
-                  ) : filteredOrders.map((order, index) => (
-                    <motion.tr
-                      key={order.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className={`group hover:bg-muted/50 transition-colors ${selectedRows[order.id] ? "bg-primary/5" : ""}`}
-                      data-state={selectedRows[order.id] && "selected"}
-                    >
-                      <TableCell>
-                        <Checkbox
-                          checked={!!selectedRows[order.id]}
-                          onCheckedChange={(checked) => handleSelectRow(order.id, !!checked)}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Link href={`/admin/orders/${order.id}`} className="font-medium hover:underline text-primary">
-                          {order.invoiceNumber}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 font-mono text-sm">
-                          <span className="text-muted-foreground">{order.trackingId}</span>
-                          <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => copyToClipboard(order.trackingId, 'كود التتبع')}>
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-medium">{order.customerName}</TableCell>
-                      <TableCell>{order.representativeName ? <Badge variant="secondary" className="font-normal">{order.representativeName}</Badge> : <span className="text-muted-foreground text-sm">--</span>}</TableCell>
-                      <TableCell>{order.sellingPriceLYD.toFixed(2)} د.ل</TableCell>
-                      <TableCell className={order.remainingAmount > 0 ? 'text-destructive font-bold' : 'text-green-600'}>
-                        {order.remainingAmount.toFixed(2)} د.ل
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={`font-normal border-none ${statusConfig[order.status as keyof typeof statusConfig].className}`}>
-                          {statusConfig[order.status as keyof typeof statusConfig].icon}
-                          <span className="mr-1">{statusConfig[order.status as keyof typeof statusConfig].text}</span>
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button aria-haspopup="true" size="icon" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                              <MoreHorizontal className="h-4 w-4" />
-                              <span className="sr-only">Toggle menu</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>الإجراءات</DropdownMenuLabel>
-                            <DropdownMenuItem onSelect={() => router.push(`/admin/orders/add?id=${order.id}`)}>
-                              <Edit className="ml-2 h-4 w-4" /> تعديل
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => handlePrint(order)}>
-                              <Printer className="ml-2 h-4 w-4" /> طباعة البوليصة
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => openPaymentDialog(order)} disabled={order.remainingAmount <= 0}>
-                              <DollarSign className="ml-2 h-4 w-4" /> دفع جزء من المبلغ
-                            </DropdownMenuItem>
-                            <DropdownMenuSub>
-                              <DropdownMenuSubTrigger>
-                                <Truck className="ml-2 h-4 w-4" /> تحديث الحالة
-                              </DropdownMenuSubTrigger>
-                              <DropdownMenuSubContent>
-                                {allStatuses.map(s => <DropdownMenuItem key={s} onSelect={() => handleUpdateStatus(order.id, s)}>{statusConfig[s].text}</DropdownMenuItem>)}
-                              </DropdownMenuSubContent>
-                            </DropdownMenuSub>
-                            <DropdownMenuSub>
-                              <DropdownMenuSubTrigger>
-                                <UserPlus className="ml-2 h-4 w-4" /> إسناد إلى مندوب
-                              </DropdownMenuSubTrigger>
-                              <DropdownMenuSubContent>
-                                <DropdownMenuItem onSelect={() => handleUnassignRep(order.id)}>
-                                  <UserX className="ml-2 h-4 w-4" /> إلغاء الإسناد
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                {representatives.map(rep => (
-                                  <DropdownMenuItem key={rep.id} onSelect={() => handleAssignRep(order.id, rep)}>
-                                    {rep.name}
-                                  </DropdownMenuItem>
-                                ))}
-                              </DropdownMenuSubContent>
-                            </DropdownMenuSub>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onSelect={() => openDeleteConfirm(order)} className="text-destructive focus:bg-destructive/30 focus:text-destructive-foreground">
-                              <Trash2 className="ml-2 h-4 w-4" /> حذف
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onSelect={() => openWeightDialog(order)}>
-                              <Scale className="ml-2 h-4 w-4" /> وزن الزبون
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </motion.tr>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+                <CalendarIcon className="ml-2 h-4 w-4" />
+                {dateRange?.from ? (
+                  dateRange.to ? `${format(dateRange.from, "d/M")} - ${format(dateRange.to, "d/M/y")}` : format(dateRange.from, "d/M/yy")
+                ) : <span>الفترة الزمنية</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar initialFocus mode="range" defaultMonth={dateRange?.from} selected={dateRange} onSelect={setDateRange} numberOfMonths={2} />
+            </PopoverContent>
+          </Popover>
+          {dateRange && (
+            <Button variant="ghost" size="icon" onClick={() => setDateRange(undefined)} className="shrink-0">
+              <X className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
+        {/* Status Chips */}
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setStatusFilter('all')}
+            className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${statusFilter === 'all' ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-slate-800 text-muted-foreground hover:bg-slate-200'
+              }`}
+          >كل الحالات ({orders.length})</button>
+          {allStatuses.map(s => (
+            <button
+              key={s}
+              onClick={() => setStatusFilter(statusFilter === s ? 'all' : s)}
+              className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${statusFilter === s ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-slate-800 text-muted-foreground hover:bg-slate-200 dark:hover:bg-slate-700'
+                }`}
+            >
+              {statusConfig[s].text} ({orders.filter(o => o.status === s).length})
+            </button>
+          ))}
+        </div>
+      </div>
+      {/* Orders Table */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+        {selectedRowCount > 0 && (
+          <div className="flex items-center gap-3 p-3 bg-primary/5 border-b border-primary/20">
+            <span className="text-sm font-semibold text-primary">{selectedRowCount} طلب محدد</span>
+            {/* One-click bulk print button */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-white gap-1.5 border-blue-200 text-blue-600 hover:bg-blue-50"
+              onClick={handleBulkPrint}
+            >
+              <Printer className="w-4 h-4" />
+              طباعة المحدد ({selectedRowCount})
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="bg-white">الإجراءات الجماعية</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>تحديث الحالة</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    {allStatuses.map(s => (
+                      <DropdownMenuItem key={s} onSelect={() => handleBulkUpdateStatus(s)}>{statusConfig[s].text}</DropdownMenuItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>إسناد إلى مندوب</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    {representatives.map(rep => (
+                      <DropdownMenuItem key={rep.id} onSelect={() => handleBulkAssignRep(rep)}>{rep.name}</DropdownMenuItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-destructive" onSelect={() => setIsBulkDeleteOpen(true)}>حذف المحدد</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-slate-50 dark:bg-slate-800/50">
+              <TableHead className="w-[50px]">
+                <Checkbox
+                  checked={selectedRowCount > 0 && selectedRowCount === filteredOrders.length}
+                  onCheckedChange={(checked) => handleSelectAll(!!checked)}
+                />
+              </TableHead>
+              <TableHead className="text-right font-semibold text-xs text-foreground">رقم الفاتورة</TableHead>
+              <TableHead className="text-right font-semibold text-xs text-foreground">كود التتبع</TableHead>
+              <TableHead className="text-right font-semibold text-xs text-foreground">اسم العميل</TableHead>
+              <TableHead className="text-right font-semibold text-xs text-foreground">المندوب</TableHead>
+              <TableHead className="text-right font-semibold text-xs text-foreground">الإجمالي</TableHead>
+              <TableHead className="text-right font-semibold text-xs text-foreground">المتبقي</TableHead>
+              <TableHead className="text-right font-semibold text-xs text-foreground">الحالة</TableHead>
+              <TableHead><span className="sr-only">Actions</span></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow><TableCell colSpan={9} className="text-center h-32">
+                <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                  <Package className="w-5 h-5 animate-bounce text-primary" />
+                  <span>جاري تحميل الطلبات...</span>
+                </div>
+              </TableCell></TableRow>
+            ) : filteredOrders.length === 0 ? (
+              <TableRow><TableCell colSpan={9} className="text-center h-32">
+                <p className="text-muted-foreground">لا توجد طلبات تطابق البحث</p>
+              </TableCell></TableRow>
+            ) : filteredOrders.map((order) => (
+              <TableRow
+                key={order.id}
+                className={`group hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors ${selectedRows[order.id] ? "bg-primary/5" : ""}`}
+              >
+                <TableCell>
+                  <Checkbox checked={!!selectedRows[order.id]} onCheckedChange={(checked) => handleSelectRow(order.id, !!checked)} />
+                </TableCell>
+                <TableCell>
+                  <Link href={`/admin/orders/${order.id}`} className="font-bold text-sm hover:text-primary transition-colors">{order.invoiceNumber}</Link>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1">
+                    <span className="font-mono text-xs text-muted-foreground">{order.trackingId}</span>
+                    <Button variant="ghost" size="icon" className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => copyToClipboard(order.trackingId, 'كود التتبع')}>
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </TableCell>
+                <TableCell className="font-medium text-sm">{order.customerName}</TableCell>
+                <TableCell>{order.representativeName ? <Badge variant="secondary" className="font-normal text-xs">{order.representativeName}</Badge> : <span className="text-muted-foreground text-sm">--</span>}</TableCell>
+                <TableCell className="font-semibold text-sm">{order.sellingPriceLYD.toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} د.ل</TableCell>
+                <TableCell className={`font-semibold text-sm ${order.remainingAmount > 0 ? 'text-destructive' : 'text-green-600'}`}>
+                  {order.remainingAmount.toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} د.ل
+                </TableCell>
+                <TableCell>
+                  <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${statusConfig[order.status as keyof typeof statusConfig].className}`}>
+                    {statusConfig[order.status as keyof typeof statusConfig].icon}
+                    <span className="mr-0.5">{statusConfig[order.status as keyof typeof statusConfig].text}</span>
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button aria-haspopup="true" size="icon" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>الإجراءات</DropdownMenuLabel>
+                      <DropdownMenuItem onSelect={() => router.push(`/admin/orders/add?id=${order.id}`)}><Edit className="ml-2 h-4 w-4" /> تعديل</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => handlePrint(order)}><Printer className="ml-2 h-4 w-4" /> طباعة</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => openPaymentDialog(order)} disabled={order.remainingAmount <= 0}><DollarSign className="ml-2 h-4 w-4" /> دفعة</DropdownMenuItem>
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger><Truck className="ml-2 h-4 w-4" /> تحديث الحالة</DropdownMenuSubTrigger>
+                        <DropdownMenuSubContent>
+                          {allStatuses.map(s => <DropdownMenuItem key={s} onSelect={() => handleUpdateStatus(order.id, s)}>{statusConfig[s].text}</DropdownMenuItem>)}
+                        </DropdownMenuSubContent>
+                      </DropdownMenuSub>
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger><UserPlus className="ml-2 h-4 w-4" /> إسناد مندوب</DropdownMenuSubTrigger>
+                        <DropdownMenuSubContent>
+                          <DropdownMenuItem onSelect={() => handleUnassignRep(order.id)}><UserX className="ml-2 h-4 w-4" /> إلغاء الإسناد</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          {representatives.map(rep => <DropdownMenuItem key={rep.id} onSelect={() => handleAssignRep(order.id, rep)}>{rep.name}</DropdownMenuItem>)}
+                        </DropdownMenuSubContent>
+                      </DropdownMenuSub>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onSelect={() => openDeleteConfirm(order)} className="text-destructive"><Trash2 className="ml-2 h-4 w-4" /> حذف</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onSelect={() => openWeightDialog(order)}><Scale className="ml-2 h-4 w-4" /> وزن الزبون</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
 
       {/* Payment Dialog */}
-      <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+      < Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
         <DialogContent dir='rtl'>
           <DialogHeader>
-            <DialogTitle>تسجيل دفعة جديدة للطلب {currentOrder?.invoiceNumber}</DialogTitle>
-            <DialogDescription>
-              المبلغ المتبقي الحالي: {currentOrder?.remainingAmount.toFixed(2)} د.ل
-            </DialogDescription>
+            <DialogTitle>تسجيل دفعة - طلب {currentOrder?.invoiceNumber}</DialogTitle>
+            <DialogDescription>المتبقي: {currentOrder?.remainingAmount.toFixed(2)} د.ل</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="payment-amount">قيمة الدفعة (د.ل)</Label>
-              <Input
-                id="payment-amount"
-                type="number"
-                value={paymentAmount}
-                onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)}
-                dir="ltr"
-              />
+              <Input id="payment-amount" type="number" value={paymentAmount} onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)} dir="ltr" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="payment-notes">ملاحظات (اختياري)</Label>
-              <Textarea
-                id="payment-notes"
-                value={paymentNotes}
-                onChange={(e) => setPaymentNotes(e.target.value)}
-                placeholder="مثال: دفعة عن طريق الحساب البنكي..."
-              />
+              <Textarea id="payment-notes" value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} placeholder="مثال: دفعة عن طريق الحساب البنكي..." />
             </div>
           </div>
           <DialogFooter>
@@ -694,13 +641,11 @@ const AdminOrdersPage = () => {
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+      < Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
         <DialogContent dir='rtl'>
           <DialogHeader>
             <DialogTitle>تأكيد الحذف</DialogTitle>
-            <DialogDescription>
-              هل أنت متأكد من رغبتك في حذف الطلب "{currentOrder?.invoiceNumber}"؟ لا يمكن التراجع عن هذا الإجراء.
-            </DialogDescription>
+            <DialogDescription>هل أنت متأكد من حذف الطلب "{currentOrder?.invoiceNumber}"؟ لا يمكن التراجع عن هذا الإجراء.</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="destructive" onClick={handleDeleteOrder}>حذف</Button>
@@ -710,13 +655,11 @@ const AdminOrdersPage = () => {
       </Dialog>
 
       {/* Bulk Delete Confirmation Dialog */}
-      <Dialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
+      < Dialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
         <DialogContent dir='rtl'>
           <DialogHeader>
             <DialogTitle>تأكيد الحذف الجماعي</DialogTitle>
-            <DialogDescription>
-              هل أنت متأكد من رغبتك في حذف {selectedRowCount} طلب؟ لا يمكن التراجع عن هذا الإجراء.
-            </DialogDescription>
+            <DialogDescription>هل أنت متأكد من حذف {selectedRowCount} طلب؟; لا يمكن التراجع.</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="destructive" onClick={handleBulkDelete}>نعم، قم بحذف الكل</Button>
@@ -726,85 +669,49 @@ const AdminOrdersPage = () => {
       </Dialog>
 
       {/* Weight Cost Dialog */}
-      <Dialog open={isWeightDialogOpen} onOpenChange={setIsWeightDialogOpen}>
+      < Dialog open={isWeightDialogOpen} onOpenChange={setIsWeightDialogOpen}>
         <DialogContent dir='rtl'>
           <DialogHeader>
             <DialogTitle>إضافة تفاصيل الوزن - {currentOrder?.invoiceNumber}</DialogTitle>
-            <DialogDescription>
-              أدخل الوزن وتكلفة الكيلو (على الشركة) وسعر بيع الكيلو (للزبون).
-            </DialogDescription>
+            <DialogDescription>أدخل الوزن وتكلفة الكيلو (على الشركة) وسعر بيع الكيلو (للزبون).</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="weight-kg">الوزن (كجم)</Label>
-              <Input
-                id="weight-kg"
-                type="number"
-                value={weightKg}
-                onChange={(e) => setWeightKg(parseFloat(e.target.value) || 0)}
-                dir="ltr"
-              />
+              <Input id="weight-kg" type="number" value={weightKg} onChange={(e) => setWeightKg(parseFloat(e.target.value) || 0)} dir="ltr" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="company-price">تكلفة الكيلو على الشركة ($ دولار)</Label>
-              <Input
-                id="company-price"
-                type="number"
-                value={companyKiloPriceUSD}
-                onChange={(e) => setCompanyKiloPriceUSD(parseFloat(e.target.value) || 0)}
-                dir="ltr"
-              />
+              <Input id="company-price" type="number" value={companyKiloPriceUSD} onChange={(e) => setCompanyKiloPriceUSD(parseFloat(e.target.value) || 0)} dir="ltr" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="customer-price">سعر بيع الكيلو للزبون (د.ل)</Label>
-              <Input
-                id="customer-price"
-                type="number"
-                value={customerKiloPrice}
-                onChange={(e) => setCustomerKiloPrice(parseFloat(e.target.value) || 0)}
-                dir="ltr"
-              />
+              <Input id="customer-price" type="number" value={customerKiloPrice} onChange={(e) => setCustomerKiloPrice(parseFloat(e.target.value) || 0)} dir="ltr" />
             </div>
-            <div className="bg-muted p-3 rounded-md text-sm space-y-1">
+            <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-sm space-y-2">
               {(() => {
                 const companyTotalUSD = weightKg * companyKiloPriceUSD;
                 const exchangeRate = currentOrder?.exchangeRate || settings?.exchangeRate || 1;
                 const companyTotalLYD = companyTotalUSD * exchangeRate;
                 const customerTotalLYD = weightKg * customerKiloPrice;
                 const profit = customerTotalLYD - companyTotalLYD;
-
                 return (
                   <>
-                    <div className="flex justify-between">
-                      <span>التكلفة (شركة - $):</span>
-                      <span className="font-bold">{companyTotalUSD.toFixed(2)} $</span>
-                    </div>
-                    <div className="flex justify-between text-muted-foreground text-xs">
-                      <span>(سعر الصرف: {exchangeRate})</span>
-                      <span>~ {companyTotalLYD.toFixed(2)} د.ل</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>إجمالي البيع (زبون):</span>
-                      <span className="font-bold text-green-600">{customerTotalLYD.toFixed(2)} د.ل</span>
-                    </div>
-                    <div className="flex justify-between pt-1 border-t mt-1">
-                      <span>تقدير الربح:</span>
-                      <span className={`font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {profit.toFixed(2)} د.ل
-                      </span>
-                    </div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">التكلفة (شركة - $):</span><span className="font-bold">{companyTotalUSD.toFixed(2)} $</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">إجمالي البيع (زبون):</span><span className="font-bold text-green-600">{customerTotalLYD.toFixed(2)} د.ل</span></div>
+                    <div className="flex justify-between border-t pt-2 mt-1"><span>تقدير الربح:</span><span className={`font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>{profit.toFixed(2)} د.ل</span></div>
                   </>
                 );
               })()}
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={handleAddWeightCost}>حفظ وإضافة</Button>
+            <Button onClick={handleAddWeightCost}>حفظ</Button>
             <Button variant="outline" onClick={() => setIsWeightDialogOpen(false)}>إلغاء</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </motion.div>
+    </div>
   );
 };
 

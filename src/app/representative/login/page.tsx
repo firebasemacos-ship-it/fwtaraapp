@@ -14,7 +14,9 @@ import { Bike, Loader2 } from "lucide-react";
 
 const Logo = () => (
   <div className="flex items-center justify-center mb-8">
-    <Image src={logo} alt="Logo" width={100} height={100} className="mx-auto" />
+    <div className="w-24 h-24 bg-[#2e68b1] rounded-2xl flex items-center justify-center shadow-lg shadow-[#2e68b1]/20">
+      <Image src={logo} alt="Logo" width={70} height={70} className="object-contain" />
+    </div>
   </div>
 );
 
@@ -66,7 +68,7 @@ export default function RepresentativeLoginPage() {
         variant: "destructive",
       });
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -81,8 +83,8 @@ export default function RepresentativeLoginPage() {
 
           <div className="mb-6">
             <h1 className="text-4xl font-bold mb-2 text-foreground flex items-center justify-center gap-2">
-                <Bike />
-                بوابة المندوب
+              <Bike />
+              بوابة المندوب
             </h1>
             <p className="text-muted-foreground">سجل الدخول للمتابعة</p>
           </div>
@@ -112,10 +114,10 @@ export default function RepresentativeLoginPage() {
               disabled={isLoading}
             >
               {isLoading ? (
-                  <>
-                      <Loader2 className="ml-2 h-5 w-5 animate-spin" />
-                      جاري التحقق...
-                  </>
+                <>
+                  <Loader2 className="ml-2 h-5 w-5 animate-spin" />
+                  جاري التحقق...
+                </>
               ) : 'تسجيل الدخول'}
             </Button>
           </form>

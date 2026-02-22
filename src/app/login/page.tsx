@@ -16,14 +16,15 @@ const Logo = ({ onClick }: { onClick: () => void }) => (
     <motion.div
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="relative w-32 h-32 mb-8 cursor-pointer mx-auto"
+        className="relative w-28 h-28 mb-8 cursor-pointer mx-auto bg-[#2e68b1] rounded-2xl flex items-center justify-center shadow-lg shadow-[#2e68b1]/20"
         onClick={onClick}
     >
         <Image
             src={logo}
             alt="Logo"
-            fill
-            className="object-contain drop-shadow-2xl"
+            width={75}
+            height={75}
+            className="object-contain"
             priority
         />
     </motion.div>
@@ -150,13 +151,15 @@ export default function LoginPage() {
                         onClick={handleLogoClick}
                         className="cursor-pointer"
                     >
-                        <Image
-                            src={logo}
-                            alt="Logo"
-                            width={200}
-                            height={200}
-                            className="mx-auto mb-8 drop-shadow-2xl brightness-0 invert"
-                        />
+                        <div className="w-32 h-32 bg-[#2e68b1] rounded-3xl flex items-center justify-center mb-8 mx-auto shadow-2xl">
+                            <Image
+                                src={logo}
+                                alt="Logo"
+                                width={90}
+                                height={90}
+                                className="object-contain"
+                            />
+                        </div>
                     </motion.div>
                     <h1 className="text-4xl font-bold text-white mb-6">شركة فوترة</h1>
                     <p className="text-xl text-primary-foreground/90 leading-relaxed">

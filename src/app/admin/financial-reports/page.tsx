@@ -1,4 +1,4 @@
-
+// src/app/admin/financial-reports/page.tsx
 'use client';
 
 import React, { useEffect, useState, useMemo, useRef } from 'react';
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { DollarSign, CreditCard, MoreHorizontal, Edit, Trash2, TrendingUp, RefreshCcw, TrendingDown, Calendar as CalendarIcon, Loader2, Search, ArrowUpDown } from "lucide-react";
+import { DollarSign, CreditCard, MoreHorizontal, Edit, Trash2, TrendingUp, RefreshCcw, TrendingDown, Calendar as CalendarIcon, Loader2, Search, ArrowUpDown, History, Receipt, Wallet, Filter, X } from "lucide-react";
 import { Badge } from '@/components/ui/badge';
 import { Transaction, Order, AppSettings, Expense, OrderStatus } from '@/lib/types';
 import { getTransactions, deleteOrder, getOrders, getAppSettings, resetFinancialReports, getExpenses } from '@/lib/actions';
@@ -22,6 +22,7 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -43,29 +44,21 @@ import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-
 const statusConfig: { [key in OrderStatus]: { text: string; className: string } } = {
-    pending: { text: 'قيد التجهيز', className: 'bg-yellow-100 text-yellow-700' },
-    processed: { text: 'تم التنفيذ', className: 'bg-cyan-100 text-cyan-700' },
-    ready: { text: 'تم التجهيز', className: 'bg-indigo-100 text-indigo-700' },
-    shipped: { text: 'تم الشحن', className: 'bg-blue-100 text-blue-700' },
-    arrived_dubai: { text: 'وصلت إلى دبي', className: 'bg-orange-100 text-orange-700' },
-    arrived_benghazi: { text: 'وصلت إلى بنغازي', className: 'bg-teal-100 text-teal-700' },
-    arrived_tripoli: { text: 'وصلت إلى طرابلس', className: 'bg-purple-100 text-purple-700' },
-    out_for_delivery: { text: 'مع المندوب', className: 'bg-lime-100 text-lime-700' },
-    delivered: { text: 'تم التسليم', className: 'bg-green-100 text-green-700' },
-    cancelled: { text: 'ملغي', className: 'bg-red-100 text-red-700' },
-    paid: { text: 'مدفوع', className: 'bg-green-100 text-green-700' },
+    pending: { text: 'قيد التجهيز', className: 'bg-yellow-50 text-yellow-700 border-yellow-100' },
+    processed: { text: 'تم التنفيذ', className: 'bg-cyan-50 text-cyan-700 border-cyan-100' },
+    ready: { text: 'تم التجهيز', className: 'bg-indigo-50 text-indigo-700 border-indigo-100' },
+    shipped: { text: 'تم الشحن', className: 'bg-blue-50 text-blue-700 border-blue-100' },
+    arrived_dubai: { text: 'وصلت إلى دبي', className: 'bg-orange-50 text-orange-700 border-orange-100' },
+    arrived_benghazi: { text: 'وصلت إلى بنغازي', className: 'bg-teal-50 text-teal-700 border-teal-100' },
+    arrived_tripoli: { text: 'وصلت إلى طرابلس', className: 'bg-purple-50 text-purple-700 border-purple-100' },
+    out_for_delivery: { text: 'مع المندوب', className: 'bg-lime-50 text-lime-700 border-lime-100' },
+    delivered: { text: 'تم التسليم', className: 'bg-green-50 text-green-700 border-green-100' },
+    cancelled: { text: 'ملغي', className: 'bg-red-50 text-red-700 border-red-100' },
+    paid: { text: 'مدفوع', className: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
 };
 
 type SortableKeys = 'customerName' | 'date' | 'status' | 'amount';
-type ChartDataPoint = {
-    date: string;
-    revenue: number;
-    expenses: number;
-    profit: number;
-};
-
 
 const FinancialReportsPage = () => {
     const router = useRouter();
@@ -83,7 +76,6 @@ const FinancialReportsPage = () => {
     const [dateRange, setDateRange] = useState<DateRange | undefined>({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) });
     const [searchQuery, setSearchQuery] = useState('');
     const [sortConfig, setSortConfig] = useState<{ key: SortableKeys; direction: 'ascending' | 'descending' } | null>(null);
-
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -110,26 +102,13 @@ const FinancialReportsPage = () => {
 
         let startDate: Date | null = null;
         let endDate: Date | null = null;
-
         const now = new Date();
 
         switch (filterType) {
-            case 'daily':
-                startDate = startOfDay(now);
-                endDate = endOfDay(now);
-                break;
-            case 'weekly':
-                startDate = startOfWeek(now, { locale: ar });
-                endDate = endOfWeek(now, { locale: ar });
-                break;
-            case 'monthly':
-                startDate = startOfMonth(now);
-                endDate = endOfMonth(now);
-                break;
-            case 'yearly':
-                startDate = startOfYear(now);
-                endDate = endOfYear(now);
-                break;
+            case 'daily': startDate = startOfDay(now); endDate = endOfDay(now); break;
+            case 'weekly': startDate = startOfWeek(now, { locale: ar }); endDate = endOfWeek(now, { locale: ar }); break;
+            case 'monthly': startDate = startOfMonth(now); endDate = endOfMonth(now); break;
+            case 'yearly': startDate = startOfYear(now); endDate = endOfYear(now); break;
             case 'custom':
                 if (dateRange?.from) startDate = startOfDay(dateRange.from);
                 if (dateRange?.to) endDate = endOfDay(dateRange.to);
@@ -184,26 +163,22 @@ const FinancialReportsPage = () => {
             });
         }
 
-        // --- Chart Data Processing ---
         const dataMap: { [key: string]: { revenue: number; expenses: number; profit: number } } = {};
-        const isLongRange = (endDate?.getTime() ?? 0) - (startDate?.getTime() ?? 0) > 31 * 24 * 60 * 60 * 1000;
+        const isLongRange = filterType === 'yearly' || filterType === 'all' || ((endDate?.getTime() ?? 0) - (startDate?.getTime() ?? 0) > 40 * 24 * 60 * 60 * 1000);
         const dateFormat = isLongRange ? 'yyyy-MM' : 'yyyy-MM-dd';
 
-        // Process payments for revenue
         dateFilteredTransactions.filter(t => t.type === 'payment').forEach(t => {
             const key = format(parseISO(t.date), dateFormat);
             if (!dataMap[key]) dataMap[key] = { revenue: 0, expenses: 0, profit: 0 };
             dataMap[key].revenue += t.amount;
         });
 
-        // Process expenses
         dateFilteredExpenses.forEach(e => {
             const key = format(parseISO(e.date), dateFormat);
             if (!dataMap[key]) dataMap[key] = { revenue: 0, expenses: 0, profit: 0 };
             dataMap[key].expenses += e.amount;
         });
 
-        // Process orders for profit
         dateFilteredOrders.filter(o => o.status !== 'cancelled').forEach(order => {
             const key = format(parseISO(order.operationDate), dateFormat);
             if (!dataMap[key]) dataMap[key] = { revenue: 0, expenses: 0, profit: 0 };
@@ -221,7 +196,6 @@ const FinancialReportsPage = () => {
             expenses: dataMap[key].expenses,
             profit: dataMap[key].profit,
         })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
 
         return {
             filteredTransactions: sortedTransactions,
@@ -241,23 +215,9 @@ const FinancialReportsPage = () => {
 
     const getSortIndicator = (key: SortableKeys) => {
         if (!sortConfig || sortConfig.key !== key) {
-            return <ArrowUpDown className="w-4 h-4 ml-2 text-muted-foreground" />;
+            return <ArrowUpDown className="w-3 h-3 ml-2 text-muted-foreground opacity-30" />;
         }
-        return sortConfig.direction === 'ascending' ? '▲' : '▼';
-    };
-
-
-    const openDeleteDialog = (transaction: Transaction) => {
-        if (transaction.type === 'order' && transaction.orderId) {
-            setTransactionToDelete(transaction);
-            setIsDeleteDialogOpen(true);
-        } else {
-            toast({
-                title: "لا يمكن الحذف",
-                description: "يمكن فقط حذف المعاملات من نوع 'طلب'. لحذف دفعة، يرجى تعديل الطلب الأصلي.",
-                variant: "destructive",
-            });
-        }
+        return <span className="text-primary mr-1 text-[10px] items-center mb-0.5">{sortConfig.direction === 'ascending' ? '▲' : '▼'}</span>;
     };
 
     const handleDelete = async () => {
@@ -289,27 +249,9 @@ const FinancialReportsPage = () => {
         const revenue = chartData.reduce((sum, item) => sum + item.revenue, 0);
         const expenses = chartData.reduce((sum, item) => sum + item.expenses, 0);
         const profit = chartData.reduce((sum, item) => sum + item.profit, 0);
-
-        // Correct way to calculate debt for the selected period
-        const debt = dateFilteredOrders
-            .filter(o => o.status !== 'cancelled')
-            .reduce((sum, order) => sum + order.remainingAmount, 0);
-
-        return {
-            totalRevenue: revenue,
-            totalDebt: debt,
-            totalExpenses: expenses,
-            netProfit: profit - expenses
-        };
+        const debt = dateFilteredOrders.filter(o => o.status !== 'cancelled').reduce((sum, order) => sum + order.remainingAmount, 0);
+        return { totalRevenue: revenue, totalDebt: debt, totalExpenses: expenses, netProfit: profit - expenses };
     }, [chartData, dateFilteredOrders]);
-
-
-    const summaryCards = [
-        { title: 'إجمالي الإيرادات', value: `${totalRevenue.toFixed(2)} د.ل`, icon: <DollarSign className="w-6 h-6" />, color: 'text-green-600' },
-        { title: 'إجمالي الديون', value: `${totalDebt.toFixed(2)} د.ل`, icon: <CreditCard className="w-6 h-6" />, color: 'text-destructive' },
-        { title: 'إجمالي المصروفات', value: `${totalExpenses.toFixed(2)} د.ل`, icon: <TrendingDown className="w-6 h-6" />, color: 'text-destructive' },
-        { title: 'صافي الربح', value: `${netProfit.toFixed(2)} د.ل`, icon: <TrendingUp className="w-6 h-6" />, color: netProfit >= 0 ? 'text-primary' : 'text-destructive' },
-    ];
 
     const handleFilterChange = (type: string) => {
         setFilterType(type);
@@ -326,260 +268,297 @@ const FinancialReportsPage = () => {
         setFilterType('custom');
     }
 
-    const getFilterLabel = () => {
-        switch (filterType) {
-            case 'daily': return `اليوم: ${format(new Date(), 'd MMMM yyyy', { locale: ar })}`;
-            case 'weekly': return 'هذا الأسبوع';
-            case 'monthly': return 'هذا الشهر';
-            case 'yearly': return 'هذه السنة';
-            case 'custom':
-                if (dateRange?.from && dateRange?.to) {
-                    return `${format(dateRange.from, 'd MMM', { locale: ar })} - ${format(dateRange.to, 'd MMM yyyy', { locale: ar })}`;
-                }
-                if (dateRange?.from) return `تاريخ: ${format(dateRange.from, 'd MMMM yyyy', { locale: ar })}`;
-                return 'فترة مخصصة';
-            default: return 'عرض كل التقارير';
-        }
-    }
-
     return (
-        <div className="p-4 sm:p-6" dir="rtl">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-                <h1 className="text-2xl font-bold">التقارير المالية</h1>
-                <div className="flex items-center gap-2">
-                    <Button onClick={() => setIsResetDialogOpen(true)} variant="destructive" className="gap-2">
+        <div className="space-y-6 pb-12" dir="rtl">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 className="text-3xl font-black tracking-tight text-foreground">التقارير المالية</h1>
+                    <p className="text-muted-foreground mt-1 text-base">تحليل الأرباح، الإيرادات والمصروفات</p>
+                </div>
+                <div className="flex gap-2 w-full md:w-auto">
+                    <Button onClick={() => setIsResetDialogOpen(true)} variant="destructive" className="flex-1 md:flex-none h-11 px-6 rounded-xl font-bold gap-2">
                         <RefreshCcw className="w-4 h-4" />
-                        تصفير
+                        تصفير البيانات
                     </Button>
                 </div>
             </div>
 
-            <main className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {summaryCards.map((card, index) => (
-                        <Card key={index} className="shadow-sm">
-                            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                <CardTitle className="text-sm font-medium text-muted-foreground">{card.title}</CardTitle>
-                                <div className={`text-primary ${card.color}`}>{card.icon}</div>
-                            </CardHeader>
-                            <CardContent>
-                                <div className={`text-2xl font-bold ${card.color}`}>{card.value}</div>
-                            </CardContent>
-                        </Card>
-                    ))}
+            {/* Stat Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full -mr-8 -mt-8 group-hover:bg-emerald-500/10 transition-colors" />
+                    <div className="p-3 bg-emerald-100 dark:bg-emerald-950/30 rounded-2xl text-emerald-600 dark:text-emerald-400 w-fit mb-4">
+                        <DollarSign className="w-6 h-6" />
+                    </div>
+                    <p className="text-muted-foreground font-medium mb-1 text-sm">إجمالي الإيرادات</p>
+                    <h3 className="text-2xl font-black text-foreground">{totalRevenue.toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs font-normal text-muted-foreground">د.ل</span></h3>
+                    <div className="flex items-center gap-1 mt-2 text-[10px] text-emerald-600 font-bold">
+                        <TrendingUp className="w-3 h-3" />
+                        ثبات مالي جيد
+                    </div>
                 </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>الأداء المالي خلال الفترة</CardTitle>
-                        <CardDescription>{getFilterLabel()}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        {isLoading ? (
-                            <div className="flex justify-center items-center h-80"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-                        ) : (
-                            <div className="h-80">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                        <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                                        <YAxis tick={{ fontSize: 12 }} />
-                                        <Tooltip
-                                            formatter={(value: number) => `${value.toFixed(2)} د.ل`}
-                                            labelFormatter={(label) => `التاريخ: ${label}`}
-                                            contentStyle={{
-                                                backgroundColor: 'hsl(var(--background))',
-                                                border: '1px solid hsl(var(--border))',
-                                                borderRadius: 'var(--radius)',
-                                                direction: 'rtl'
-                                            }}
-                                        />
-                                        <Legend wrapperStyle={{ fontSize: "14px" }} />
-                                        <Bar dataKey="revenue" fill="var(--color-green-600, #16a34a)" name="الإيرادات" radius={[4, 4, 0, 0]} />
-                                        <Bar dataKey="expenses" fill="var(--color-destructive, #dc2626)" name="المصروفات" radius={[4, 4, 0, 0]} />
-                                        <Bar dataKey="profit" fill="var(--color-primary, #3b82f6)" name="صافي الربح" radius={[4, 4, 0, 0]} />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
+                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-full -mr-8 -mt-8 group-hover:bg-red-500/10 transition-colors" />
+                    <div className="p-3 bg-red-100 dark:bg-red-950/30 rounded-2xl text-red-600 dark:text-red-400 w-fit mb-4">
+                        <CreditCard className="w-6 h-6" />
+                    </div>
+                    <p className="text-muted-foreground font-medium mb-1 text-sm">إجمالي الديون</p>
+                    <h3 className="text-2xl font-black text-red-600 dark:text-red-400">{totalDebt.toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs font-normal text-muted-foreground">د.ل</span></h3>
+                    <p className="text-[10px] text-muted-foreground mt-2">ديون مستحقة غير محصلة</p>
+                </div>
 
-                <Card>
-                    <CardHeader>
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <div>
-                                <CardTitle>سجل المعاملات</CardTitle>
-                                <p className="text-sm text-muted-foreground pt-1">{getFilterLabel()}</p>
-                            </div>
-                            <div className="relative w-full sm:w-72">
-                                <Input
-                                    placeholder="ابحث بالهاتف، الاسم، الفاتورة..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="pr-10"
-                                />
-                                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                            </div>
+                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 rounded-full -mr-8 -mt-8 group-hover:bg-orange-500/10 transition-colors" />
+                    <div className="p-3 bg-orange-100 dark:bg-orange-950/30 rounded-2xl text-orange-600 dark:text-orange-400 w-fit mb-4">
+                        <TrendingDown className="w-6 h-6" />
+                    </div>
+                    <p className="text-muted-foreground font-medium mb-1 text-sm">إجمالي المصروفات</p>
+                    <h3 className="text-2xl font-black text-orange-600 dark:text-orange-400">{totalExpenses.toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs font-normal text-muted-foreground">د.ل</span></h3>
+                    <p className="text-[10px] text-muted-foreground mt-2">تكاليف التشغيل والنفقات</p>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-8 -mt-8 group-hover:bg-primary/10 transition-colors" />
+                    <div className="p-3 bg-primary/10 rounded-2xl text-primary w-fit mb-4">
+                        <TrendingUp className="w-6 h-6" />
+                    </div>
+                    <p className="text-muted-foreground font-medium mb-1 text-sm">صافي الأرباح</p>
+                    <h3 className={cn("text-2xl font-black", netProfit >= 0 ? "text-primary" : "text-destructive")}>
+                        {netProfit.toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs font-normal text-muted-foreground">د.ل</span>
+                    </h3>
+                    <p className="text-[10px] text-muted-foreground mt-2">الأرباح الفعلية المحققة</p>
+                </div>
+            </div>
+
+            {/* Analytics Chart */}
+            <Card className="border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden border-none">
+                <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 mb-0">
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <CardTitle className="text-lg font-black">تحليل الأداء المالي</CardTitle>
+                            <CardDescription className="text-xs font-medium">مقارنة الإيرادات، المصاريف والأرباح حسب الفترة</CardDescription>
                         </div>
-                        <div className="flex flex-wrap items-center gap-2 pt-4">
-                            <Button variant={filterType === 'all' ? 'default' : 'outline'} size="sm" onClick={() => handleFilterChange('all')}>الكل</Button>
-                            <Button variant={filterType === 'daily' ? 'default' : 'outline'} size="sm" onClick={() => handleFilterChange('daily')}>اليوم</Button>
-                            <Button variant={filterType === 'weekly' ? 'default' : 'outline'} size="sm" onClick={() => handleFilterChange('weekly')}>أسبوعي</Button>
-                            <Button variant={filterType === 'monthly' ? 'default' : 'outline'} size="sm" onClick={() => handleFilterChange('monthly')}>شهري</Button>
-                            <Button variant={filterType === 'yearly' ? 'default' : 'outline'} size="sm" onClick={() => handleFilterChange('yearly')}>سنوي</Button>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        id="date"
-                                        variant={"outline"}
-                                        size="sm"
-                                        className={cn("w-[240px] justify-start text-right font-normal", filterType === 'custom' && "border-primary")}
-                                    >
-                                        <CalendarIcon className="ml-2 h-4 w-4" />
-                                        {dateRange?.from ? (
-                                            dateRange.to ? (
-                                                <>
-                                                    {format(dateRange.from, "LLL dd, y")} -{" "}
-                                                    {format(dateRange.to, "LLL dd, y")}
-                                                </>
-                                            ) : (
-                                                format(dateRange.from, "LLL dd, y")
-                                            )
-                                        ) : (
-                                            <span>اختر فترة</span>
-                                        )}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar
-                                        initialFocus
-                                        mode="range"
-                                        defaultMonth={dateRange?.from}
-                                        selected={dateRange}
-                                        onSelect={handleDateRangeSelect}
-                                        numberOfMonths={2}
-                                        locale={ar}
+                        <div className="p-2 bg-white dark:bg-slate-950 rounded-xl shadow-sm">
+                            <CalendarDaysIcon className="w-4 h-4 text-primary" />
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="pt-8">
+                    {isLoading ? (
+                        <div className="flex justify-center items-center h-80"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+                    ) : chartData.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-80 opacity-20"><TrendingUp className="w-16 h-16 mb-2" /><p className="font-bold">لا يوجد بيانات كافية للرسم البياني</p></div>
+                    ) : (
+                        <div className="h-80">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.1} />
+                                    <XAxis dataKey="date" tick={{ fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} dy={10} />
+                                    <YAxis tick={{ fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} />
+                                    <Tooltip
+                                        cursor={{ fill: 'rgba(0,0,0,0.02)' }}
+                                        formatter={(value: number) => [`${value.toLocaleString('ar-LY', { minimumFractionDigits: 2 })} د.ل`, '']}
+                                        contentStyle={{ backgroundColor: 'rgba(255,255,255,0.95)', border: 'none', borderRadius: '16px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', direction: 'rtl', padding: '12px' }}
+                                        itemStyle={{ fontSize: '11px', fontWeight: 800, padding: '2px 0' }}
+                                        labelStyle={{ fontSize: '10px', color: '#94a3b8', marginBottom: '8px', fontWeight: 600 }}
                                     />
-                                </PopoverContent>
-                            </Popover>
+                                    <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontSize: '11px', fontWeight: 700 }} />
+                                    <Bar dataKey="revenue" fill="#10b981" name="الإيرادات" radius={[6, 6, 0, 0]} barSize={12} />
+                                    <Bar dataKey="expenses" fill="#f43f5e" name="المصروفات" radius={[6, 6, 0, 0]} barSize={12} />
+                                    <Bar dataKey="profit" fill="#3b82f6" name="الأرباح" radius={[6, 6, 0, 0]} barSize={12} />
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className='text-right whitespace-nowrap'>رقم الفاتورة</TableHead>
-                                    <TableHead className='text-right whitespace-nowrap cursor-pointer' onClick={() => requestSort('customerName')}>
-                                        <div className='flex items-center'>العميل {getSortIndicator('customerName')}</div>
-                                    </TableHead>
-                                    <TableHead className='text-right whitespace-nowrap cursor-pointer' onClick={() => requestSort('date')}>
-                                        <div className='flex items-center'>التاريخ {getSortIndicator('date')}</div>
-                                    </TableHead>
-                                    <TableHead className='text-right whitespace-nowrap'>النوع</TableHead>
-                                    <TableHead className='text-right whitespace-nowrap cursor-pointer' onClick={() => requestSort('status')}>
-                                        <div className='flex items-center'>الحالة {getSortIndicator('status')}</div>
-                                    </TableHead>
-                                    <TableHead className='text-right whitespace-nowrap cursor-pointer' onClick={() => requestSort('amount')}>
-                                        <div className='flex items-center'>المبلغ {getSortIndicator('amount')}</div>
-                                    </TableHead>
-                                    <TableHead className='text-right'>إجراءات</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {isLoading ? (
-                                    <TableRow><TableCell colSpan={7} className="text-center py-10"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" /></TableCell></TableRow>
-                                ) : filteredTransactions.length > 0 ? (
-                                    filteredTransactions.map((transaction) => {
-                                        const order = allOrders.find(o => o.id === transaction.orderId);
-                                        return (
-                                            <TableRow key={transaction.id}>
-                                                <TableCell className="font-medium">
-                                                    {order ? (
-                                                        <Link href={`/admin/orders/${order.id}`} className="hover:underline text-primary">
-                                                            {order.invoiceNumber}
-                                                        </Link>
-                                                    ) : (
-                                                        transaction.description
-                                                    )}
-                                                </TableCell>
-                                                <TableCell>{transaction.customerName} ({transaction.customerId.slice(-4)})</TableCell>
-                                                <TableCell>{new Date(transaction.date).toLocaleDateString('ar-LY')}</TableCell>
-                                                <TableCell>
-                                                    {transaction.type === 'order' ? 'طلب' : 'دفعة'}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge variant="outline" className={`font-normal ${statusConfig[transaction.status as keyof typeof statusConfig]?.className}`}>
-                                                        {statusConfig[transaction.status as keyof typeof statusConfig]?.text}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell className={`${transaction.type === 'order' ? "text-destructive" : "text-green-600"}`}>
-                                                    {transaction.amount.toFixed(2)} د.ل
-                                                </TableCell>
-                                                <TableCell>
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <Button aria-haspopup="true" size="icon" variant="ghost">
-                                                                <MoreHorizontal className="h-4 w-4" />
-                                                                <span className="sr-only">Toggle menu</span>
-                                                            </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                            <DropdownMenuLabel>الإجراءات</DropdownMenuLabel>
-                                                            <DropdownMenuItem
-                                                                onSelect={() => router.push(`/admin/orders/add?id=${transaction.orderId}`)}
-                                                                disabled={!transaction.orderId}
-                                                            >
-                                                                <Edit className="ml-2 h-4 w-4" /> عرض / تعديل
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem
-                                                                onSelect={() => openDeleteDialog(transaction)}
-                                                                className="text-destructive focus:text-destructive-foreground focus:bg-destructive/90"
-                                                                disabled={transaction.type !== 'order'}
-                                                            >
-                                                                <Trash2 className="ml-2 h-4 w-4" /> حذف الطلب
-                                                            </DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
-                                                </TableCell>
-                                            </TableRow>
-                                        )
-                                    })
-                                ) : (
-                                    <TableRow><TableCell colSpan={7} className="text-center">لا توجد معاملات تطابق معايير البحث.</TableCell></TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
-            </main>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Toolbar */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex flex-col gap-4">
+                <div className="flex flex-col md:flex-row gap-3">
+                    <div className="relative flex-1">
+                        <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                        <Input
+                            placeholder="ابحث بالعميل، الفاتورة أو الهاتف..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pr-10 h-11 text-sm bg-slate-50 dark:bg-slate-800/50 border-none rounded-xl"
+                        />
+                    </div>
+                    <div className="flex gap-2">
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" className={cn("h-11 rounded-xl justify-start text-sm font-normal px-4 min-w-[200px]", filterType === 'custom' && "text-primary border-primary bg-primary/5")}>
+                                    <CalendarIcon className="ml-2 h-4 w-4" />
+                                    {dateRange?.from ? (dateRange.to ? `${format(dateRange.from, "d MMM")} - ${format(dateRange.to, "d MMM y")}` : format(dateRange.from, "d MMM y")) : <span>تحديد فترة</span>}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 rounded-2xl overflow-hidden" align="start">
+                                <Calendar initialFocus mode="range" defaultMonth={dateRange?.from} selected={dateRange} onSelect={handleDateRangeSelect} numberOfMonths={2} locale={ar} />
+                            </PopoverContent>
+                        </Popover>
+                        {filterType === 'custom' && (
+                            <Button variant="ghost" size="icon" onClick={() => handleFilterChange('monthly')} className="h-11 w-11 rounded-xl shrink-0"><X className="w-4 h-4" /></Button>
+                        )}
+                    </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-50 dark:border-slate-800">
+                    {[
+                        { key: 'all', label: 'كافة المعاملات' },
+                        { key: 'daily', label: 'اليوم' },
+                        { key: 'weekly', label: 'أسبوعي' },
+                        { key: 'monthly', label: 'شهري' },
+                        { key: 'yearly', label: 'سنوي' }
+                    ].map(f => (
+                        <button
+                            key={f.key}
+                            onClick={() => handleFilterChange(f.key)}
+                            className={cn(
+                                "px-4 py-1.5 rounded-full text-xs font-bold transition-all border",
+                                filterType === f.key
+                                    ? "bg-primary border-primary text-white shadow-md shadow-primary/20"
+                                    : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-muted-foreground hover:bg-slate-50"
+                            )}
+                        >
+                            {f.label}
+                            {f.key === filterType && filteredTransactions.length > 0 && (
+                                <span className="mr-1.5 opacity-70 bg-white/20 px-1.5 rounded-full">{filteredTransactions.length}</span>
+                            )}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Transactions Table */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                        <History className="w-5 h-5 text-muted-foreground" />
+                        <p className="font-bold text-foreground">سجل المعاملات المالية</p>
+                    </div>
+                </div>
+                <Table>
+                    <TableHeader>
+                        <TableRow className="bg-slate-50 dark:bg-slate-800/50 border-none">
+                            <TableHead className='text-right font-bold text-xs text-muted-foreground uppercase py-4 pr-6'>الوثيقة / الفاتورة</TableHead>
+                            <TableHead className='text-right font-bold text-xs text-muted-foreground uppercase py-4 cursor-pointer group' onClick={() => requestSort('customerName')}>
+                                <div className='flex items-center'>العميل {getSortIndicator('customerName')}</div>
+                            </TableHead>
+                            <TableHead className='text-right font-bold text-xs text-muted-foreground uppercase py-4 cursor-pointer group' onClick={() => requestSort('date')}>
+                                <div className='flex items-center text-right'>التاريخ {getSortIndicator('date')}</div>
+                            </TableHead>
+                            <TableHead className='text-right font-bold text-xs text-muted-foreground uppercase py-4'>النوع</TableHead>
+                            <TableHead className='text-right font-bold text-xs text-muted-foreground uppercase py-4 cursor-pointer group' onClick={() => requestSort('status')}>
+                                <div className='flex items-center'>الحالة {getSortIndicator('status')}</div>
+                            </TableHead>
+                            <TableHead className='text-right font-bold text-xs text-muted-foreground uppercase py-4 cursor-pointer group' onClick={() => requestSort('amount')}>
+                                <div className='flex items-center'>المبلغ {getSortIndicator('amount')}</div>
+                            </TableHead>
+                            <TableHead className="w-[60px]"><span className="sr-only">Actions</span></TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {isLoading ? (
+                            <TableRow><TableCell colSpan={7} className="text-center py-24"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" /></TableCell></TableRow>
+                        ) : filteredTransactions.length > 0 ? (
+                            filteredTransactions.map((transaction) => {
+                                const order = allOrders.find(o => o.id === transaction.orderId);
+                                return (
+                                    <TableRow key={transaction.id} className="group hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors border-slate-50 dark:border-slate-800">
+                                        <TableCell className="py-4 pr-6">
+                                            {order ? (
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 bg-primary/10 rounded-xl text-primary"><Receipt className="w-4 h-4" /></div>
+                                                    <Link href={`/admin/orders/${order.id}`} className="font-black text-sm text-primary hover:underline">{order.invoiceNumber}</Link>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500"><History className="w-4 h-4" /></div>
+                                                    <p className="font-bold text-sm text-foreground">{transaction.description}</p>
+                                                </div>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="py-4">
+                                            <p className="font-bold text-sm">{transaction.customerName}</p>
+                                            <p className="text-[10px] text-muted-foreground mt-0.5">#{transaction.customerId.slice(-6)}</p>
+                                        </TableCell>
+                                        <TableCell className="py-4 text-xs font-bold text-muted-foreground">
+                                            {new Date(transaction.date).toLocaleDateString('ar-LY', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                                        </TableCell>
+                                        <TableCell className="py-4 text-xs font-black">
+                                            {transaction.type === 'order' ? <span className="text-destructive">طلب شراء</span> : <span className="text-emerald-600">دفعة مالية</span>}
+                                        </TableCell>
+                                        <TableCell className="py-4">
+                                            <span className={cn(
+                                                "inline-flex items-center gap-1.5 text-[10px] font-black px-3 py-1.5 rounded-full border shadow-sm",
+                                                statusConfig[transaction.status as keyof typeof statusConfig]?.className
+                                            )}>
+                                                {statusConfig[transaction.status as keyof typeof statusConfig]?.text}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="py-4">
+                                            <p className={cn("font-black text-sm", transaction.type === 'order' ? "text-red-600" : "text-emerald-600")}>
+                                                {transaction.type === 'order' ? '-' : '+'}{transaction.amount.toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-[10px] font-normal opacity-60">د.ل</span>
+                                            </p>
+                                        </TableCell>
+                                        <TableCell className="py-4 text-left">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button size="icon" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-all h-8 w-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="rounded-xl p-1.5 min-w-[160px]">
+                                                    <DropdownMenuLabel className="text-[10px] text-muted-foreground uppercase px-2 py-1">إجراءات المعاملة</DropdownMenuLabel>
+                                                    <DropdownMenuItem onSelect={() => router.push(`/admin/orders/add?id=${transaction.orderId}`)} disabled={!transaction.orderId} className="rounded-lg gap-2 cursor-pointer font-medium p-2"><Edit className="h-4 w-4" /> عرض التفاصيل</DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem onSelect={() => { setTransactionToDelete(transaction); setIsDeleteDialogOpen(true); }} className="text-destructive rounded-lg gap-2 cursor-pointer font-medium p-2" disabled={transaction.type !== 'order'}><Trash2 className="h-4 w-4" /> حذف المعاملة</DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            })
+                        ) : (
+                            <TableRow><TableCell colSpan={7} className="text-center py-24 text-muted-foreground font-bold opacity-40">لا يوجد بيانات تطابق الفلترة الحالية.</TableCell></TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+
+            {/* Dialogs */}
             <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                <DialogContent dir="rtl">
-                    <DialogHeader>
-                        <DialogTitle>تأكيد الحذف</DialogTitle>
-                        <DialogDescription>
-                            هل أنت متأكد من رغبتك في حذف الطلب رقم #{transactionToDelete?.orderId?.slice(-6)}؟
-                            سيتم حذف الطلب وجميع معاملاته المالية المرتبطة به. لا يمكن التراجع عن هذا الإجراء.
+                <DialogContent className="rounded-2xl" dir="rtl">
+                    <DialogHeader className="text-right">
+                        <DialogTitle className="text-xl font-bold">حذف المعاملة</DialogTitle>
+                        <DialogDescription className="text-sm">
+                            هل أنت متأكد من حذف الطلب رقم #{transactionToDelete?.orderId?.slice(-6)}؟
+                            سيتم تعديل الأرصدة والتقارير المالية بناءً على هذا الإجراء.
                         </DialogDescription>
                     </DialogHeader>
-                    <DialogFooter>
-                        <Button variant="destructive" onClick={handleDelete}>نعم، قم بالحذف</Button>
-                        <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>إلغاء</Button>
+                    <DialogFooter className="mt-4 gap-2 sm:gap-0">
+                        <Button variant="destructive" className="flex-1 rounded-xl font-bold" onClick={handleDelete}>تأكيد الحذف</Button>
+                        <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setIsDeleteDialogOpen(false)}>تراجع</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
             <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
-                <DialogContent dir="rtl">
-                    <DialogHeader>
-                        <DialogTitle>تأكيد تصفير التقارير</DialogTitle>
-                        <DialogDescription>
-                            هل أنت متأكد تمامًا من رغبتك في تصفير التقارير المالية؟
-                            سيتم حذف <span className="font-bold text-destructive">جميع المعاملات المالية والمصروفات</span> بشكل نهائي. لا يمكن التراجع عن هذا الإجراء.
+                <DialogContent className="rounded-2xl" dir="rtl">
+                    <DialogHeader className="text-right">
+                        <DialogTitle className="text-xl font-bold text-destructive">تصفير السجلات المالية</DialogTitle>
+                        <DialogDescription className="text-sm">
+                            تحذير: هذا الإجراء سيقوم بحذف <span className="font-bold underline">جميع</span> المعاملات والمييزانيات المخزنة بشكل نهائي.
+                            <br /><br />
+                            هل أنت متأكد تماماً؟ لا يمكن استعادة البيانات بعد التصفير.
                         </DialogDescription>
                     </DialogHeader>
-                    <DialogFooter>
-                        <Button variant="destructive" onClick={handleResetReports}>نعم، قم بالتصفير</Button>
-                        <Button variant="outline" onClick={() => setIsResetDialogOpen(false)}>إلغاء</Button>
+                    <DialogFooter className="mt-4 gap-2 sm:gap-0">
+                        <Button variant="destructive" className="flex-1 rounded-xl font-bold" onClick={handleResetReports}>نعم، تصفير والبدء من جديد</Button>
+                        <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setIsResetDialogOpen(false)}>إلغاء</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -587,5 +566,10 @@ const FinancialReportsPage = () => {
     );
 };
 
-export default FinancialReportsPage;
+const CalendarDaysIcon = ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><path d="M16 2v4" /><path d="M8 2v4" /><path d="M3 10h18" /><path d="M8 14h.01" /><path d="M12 14h.01" /><path d="M16 14h.01" /><path d="M8 18h.01" /><path d="M12 18h.01" /><path d="M16 18h.01" />
+    </svg>
+)
 
+export default FinancialReportsPage;

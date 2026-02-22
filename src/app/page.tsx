@@ -127,14 +127,16 @@ const SplashScreen = () => {
         animate="visible"
       >
         <motion.div variants={itemVariants}>
-          <Image
-            src={logo}
-            alt="Logo"
-            width={120}
-            height={120}
-            className="mx-auto mb-8"
-            priority
-          />
+          <div className="mx-auto mb-8 w-32 h-32 bg-[#2e68b1] rounded-[2.5rem] flex items-center justify-center shadow-xl shadow-[#2e68b1]/30">
+            <Image
+              src={logo}
+              alt="Logo"
+              width={90}
+              height={90}
+              className="object-contain"
+              priority
+            />
+          </div>
         </motion.div>
         <motion.h1
           variants={itemVariants}
@@ -148,7 +150,7 @@ const SplashScreen = () => {
       </motion.div>
 
       <footer className="absolute bottom-4 text-xs text-muted-foreground z-10">
-        جميع الحقوق محفوظة لشركة فوترة
+        جميع الحقوق محفوظة لشركة هوية للتسويق الرقمي
       </footer>
     </div>
   );

@@ -224,18 +224,19 @@ const AdminUsersPage = () => {
   };
 
 
+  const totalDebt = users.reduce((sum, u) => sum + (u.debt || 0), 0);
+  const totalOrders = users.reduce((sum, u) => sum + (u.orderCount || 0), 0);
+
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
-      className="p-4 sm:p-6"
-      dir="rtl"
-    >
-      <div className="flex items-center justify-between mb-6">
-        <motion.h1 variants={itemVariant} className="text-2xl font-bold text-primary">إدارة المستخدمين</motion.h1>
-        <motion.div variants={itemVariant} className="flex items-center gap-2">
-          <Button size="sm" variant="outline" className="gap-1 bg-white/50 hover:bg-white/80" onClick={handleDownloadCSV} disabled={isLoading}>
+    <div className="space-y-6" dir="rtl">
+      {/* Page Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">إدارة المستخدمين</h1>
+          <p className="text-sm text-muted-foreground mt-1">{users.length} مستخدم مسجل</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" className="gap-2 rounded-xl" onClick={handleDownloadCSV} disabled={isLoading}>
             <Download className="h-4 w-4" />
             تنزيل CSV
           </Button>
@@ -244,9 +245,9 @@ const AdminUsersPage = () => {
             if (!isOpen) setCurrentUser(null);
           }}>
             <DialogTrigger asChild>
-              <Button size="sm" className="gap-1 shadow-lg hover:shadow-primary/50 transition-shadow" onClick={() => openDialog()}>
+              <Button className="gap-2 bg-primary text-white rounded-xl shadow-sm hover:bg-primary/90" onClick={() => openDialog()}>
                 <PlusCircle className="h-4 w-4" />
-                إضافة مستخدم
+                مستخدم جديد
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]" dir='rtl'>
@@ -254,122 +255,135 @@ const AdminUsersPage = () => {
                 <DialogHeader>
                   <DialogTitle>{currentUser ? 'تعديل بيانات المستخدم' : 'إضافة مستخدم جديد'}</DialogTitle>
                   <DialogDescription>
-                    {currentUser ? 'قم بتحديث المعلومات أدناه.' : 'املأ المعلومات لإضافة مستخدم جديد. سيتم إنشاء كلمة سر واسم مستخدم تلقائياً.'}
+                    {currentUser ? 'قم بتحديث المعلومات أدناه.' : 'سيتم إنشاء كلمة سر واسم مستخدم تلقائياً.'}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4 text-right">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">الاسم</Label>
-                    <Input id="name" name="name" defaultValue={currentUser?.name} className="col-span-3" />
+                  <div className="space-y-2">
+                    <Label htmlFor="name">الاسم</Label>
+                    <Input id="name" name="name" defaultValue={currentUser?.name} />
                   </div>
                   {currentUser && (
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="username" className="text-right">اسم المستخدم</Label>
-                      <Input id="username" name="username" defaultValue={currentUser?.username} className="col-span-3" readOnly />
+                    <div className="space-y-2">
+                      <Label htmlFor="username">اسم المستخدم</Label>
+                      <Input id="username" name="username" defaultValue={currentUser?.username} readOnly className="bg-slate-50" />
                     </div>
                   )}
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="phone" className="text-right">رقم الهاتف</Label>
-                    <Input id="phone" name="phone" defaultValue={currentUser?.phone} className="col-span-3" />
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">رقم الهاتف</Label>
+                    <Input id="phone" name="phone" defaultValue={currentUser?.phone} />
                   </div>
-                  <div className="grid grid-cols-4 items-start gap-4">
-                    <Label htmlFor="address" className="text-right pt-2">العنوان</Label>
-                    <Textarea id="address" name="address" defaultValue={currentUser?.address} className="col-span-3" rows={2} />
+                  <div className="space-y-2">
+                    <Label htmlFor="address">العنوان</Label>
+                    <Textarea id="address" name="address" defaultValue={currentUser?.address} rows={2} />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit">حفظ التغييرات</Button>
-                  <Button type="button" variant="secondary" onClick={() => setIsDialogOpen(false)}>إلغاء</Button>
+                  <Button type="submit">حفظ</Button>
+                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>إلغاء</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
           </Dialog>
-        </motion.div>
+        </div>
       </div>
 
-      <motion.div variants={itemVariant}>
-        <Card className="glass-card mx-0 sm:mx-0">
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <CardTitle>قائمة المستخدمين</CardTitle>
-              <div className="relative w-full sm:w-72">
-                <Input
-                  placeholder="ابحث بالاسم، اسم المستخدم، أو الهاتف..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pr-10 bg-white/50 dark:bg-black/20"
-                />
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-md border bg-white dark:bg-slate-900 overflow-hidden">
-              <Table>
-                <TableHeader className="bg-secondary/50">
-                  <TableRow>
-                    <TableHead className='text-right font-bold'>الاسم</TableHead>
-                    <TableHead className='text-right font-bold'>اسم المستخدم</TableHead>
-                    <TableHead className='text-right font-bold'>رقم الهاتف</TableHead>
-                    <TableHead className='text-right font-bold'>كلمة السر</TableHead>
-                    <TableHead className='text-right font-bold'>عدد الطلبات</TableHead>
-                    <TableHead className='text-right font-bold'>الدين المستحق</TableHead>
-                    <TableHead><span className="sr-only">Actions</span></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
-                    <TableRow><TableCell colSpan={7} className="text-center py-10"><Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" /></TableCell></TableRow>
-                  ) : filteredUsers.map((user, index) => (
-                    <motion.tr
-                      key={user.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="group hover:bg-muted/50 transition-colors"
-                    >
-                      <TableCell className="font-medium">
-                        <Link href={`/admin/users/${user.id}`} className="hover:underline text-primary">
-                          {user.name}
-                        </Link>
-                      </TableCell>
-                      <TableCell>{user.username}</TableCell>
-                      <TableCell>{user.phone}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground">********</span>
-                          {user.password && (
-                            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => copyToClipboard(user.password!)}>
-                              <Copy className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{user.orderCount}</TableCell>
-                      <TableCell className={user.debt > 0 ? "text-destructive font-bold" : "text-green-600 font-bold"}>{user.debt.toFixed(2)} د.ل</TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button aria-haspopup="true" size="icon" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                              <MoreHorizontal className="h-4 w-4" />
-                              <span className="sr-only">Toggle menu</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>الإجراءات</DropdownMenuLabel>
-                            <DropdownMenuItem onSelect={() => openDialog(user)}>تعديل</DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => openDeleteConfirm(user)} className="text-destructive focus:bg-destructive/30 focus:text-destructive-foreground">حذف</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </motion.tr>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+          <p className="text-xs font-medium text-muted-foreground mb-1">إجمالي المستخدمين</p>
+          <p className="text-3xl font-bold text-foreground">{users.length}</p>
+          <p className="text-xs text-muted-foreground mt-1">مستخدم مسجل</p>
+        </div>
+        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+          <p className="text-xs font-medium text-muted-foreground mb-1">إجمالي الطلبات</p>
+          <p className="text-3xl font-bold text-primary">{totalOrders}</p>
+          <p className="text-xs text-muted-foreground mt-1">طلب لكل المستخدمين</p>
+        </div>
+      </div>
+
+      {/* Search + Table */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+        <div className="p-4 border-b border-slate-100 dark:border-slate-800">
+          <div className="relative max-w-sm">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              placeholder="ابحث بالاسم، اسم المستخدم، أو الهاتف..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pr-9 text-sm"
+            />
+          </div>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-slate-50 dark:bg-slate-800/50">
+              <TableHead className='text-right font-semibold text-xs text-foreground'>المستخدم</TableHead>
+              <TableHead className='text-right font-semibold text-xs text-foreground'>رقم الهاتف</TableHead>
+              <TableHead className='text-right font-semibold text-xs text-foreground'>كلمة السر</TableHead>
+              <TableHead className='text-right font-semibold text-xs text-foreground'>الطلبات</TableHead>
+              <TableHead className='text-right font-semibold text-xs text-foreground'>الدين</TableHead>
+              <TableHead><span className="sr-only">Actions</span></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow><TableCell colSpan={6} className="text-center py-16">
+                <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
+              </TableCell></TableRow>
+            ) : filteredUsers.length === 0 ? (
+              <TableRow><TableCell colSpan={6} className="text-center py-16 text-muted-foreground">
+                لا يوجد مستخدمون يطابقون البحث
+              </TableCell></TableRow>
+            ) : filteredUsers.map((user) => (
+              <TableRow key={user.id} className="group hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+                      {user.name ? user.name.charAt(0) : '?'}
+                    </div>
+                    <div>
+                      <Link href={`/admin/users/${user.id}`} className="font-semibold text-sm hover:text-primary transition-colors block">
+                        {user.name}
+                      </Link>
+                      <span className="text-xs text-muted-foreground">{user.username}</span>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="text-sm">{user.phone}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground text-sm">••••••</span>
+                    {user.password && (
+                      <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => copyToClipboard(user.password!)}>
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell className="font-semibold text-sm">{user.orderCount}</TableCell>
+                <TableCell className={`font-bold text-sm ${user.debt > 0 ? 'text-destructive' : 'text-green-600'}`}>
+                  {user.debt.toLocaleString('ar-LY', { maximumFractionDigits: 0 })} د.ل
+                </TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="icon" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>الإجراءات</DropdownMenuLabel>
+                      <DropdownMenuItem onSelect={() => openDialog(user)}>تعديل</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => openDeleteConfirm(user)} className="text-destructive">حذف</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
@@ -377,8 +391,7 @@ const AdminUsersPage = () => {
           <DialogHeader>
             <DialogTitle>تأكيد الحذف</DialogTitle>
             <DialogDescription>
-              هل أنت متأكد من رغبتك في حذف المستخدم "{currentUser?.name}"؟ لا يمكن التراجع عن هذا الإجراء.
-              (ملاحظة: لن يتم حذف طلبات المستخدم السابقة).
+              هل أنت متأكد من حذف المستخدم "{currentUser?.name}"؟ لا يمكن التراجع. (لن يتم حذف طلباته السابقة).
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -387,8 +400,7 @@ const AdminUsersPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-    </motion.div>
+    </div>
   );
 };
 

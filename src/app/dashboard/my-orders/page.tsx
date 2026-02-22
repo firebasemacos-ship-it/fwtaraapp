@@ -1,83 +1,109 @@
 
 'use client';
 
-import { ArrowLeft, FileText, PackageCheck, PackageX, Truck, Building, Package, Plane, CheckCircle, Clock, MapPin, Copy } from 'lucide-react';
+import { ArrowRight, PackageCheck, PackageX, Truck, Building, Package, Plane, CheckCircle, Clock, MapPin, Copy, Loader2, ClipboardList, Search, Home, Users, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import React, { useMemo, useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Order, OrderStatus } from '@/lib/types';
 import { getOrders } from '@/lib/actions';
-import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MobileBottomNav, BottomNavItem } from '@/components/ui/MobileBottomNav';
 
+const navItems: BottomNavItem[] = [
+    { label: 'الرئيسية', icon: Home, href: '/dashboard', exact: true },
+    { label: 'تتبع', icon: Search, href: '/dashboard/track-shipment' },
+    { label: 'طلباتي', icon: ClipboardList, href: '/dashboard/my-orders' },
+    { label: 'الدعم', icon: Users, href: '/dashboard/support-chat' },
+    { label: 'إعدادات', icon: Settings, href: '/dashboard/my-data' },
+];
 
-const statusConfig: { [key in OrderStatus]: { text: string; icon: React.ReactNode; className: string } } = {
-    pending: { text: 'قيد التجهيز', icon: <Clock className="w-4 h-4" />, className: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
-    processed: { text: 'تم التنفيذ', icon: <CheckCircle className="w-4 h-4" />, className: 'bg-cyan-100 text-cyan-700 border-cyan-200' },
-    ready: { text: 'تم التجهيز', icon: <Package className="w-4 h-4" />, className: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
-    shipped: { text: 'تم الشحن', icon: <Truck className="w-4 h-4" />, className: 'bg-blue-100 text-blue-700 border-blue-200' },
-    arrived_dubai: { text: 'وصلت إلى دبي', icon: <Plane className="w-4 h-4" />, className: 'bg-orange-100 text-orange-700 border-orange-200' },
-    arrived_benghazi: { text: 'وصلت إلى بنغازي', icon: <Building className="w-4 h-4" />, className: 'bg-teal-100 text-teal-700 border-teal-200' },
-    arrived_tripoli: { text: 'وصلت إلى طرابلس', icon: <Building className="w-4 h-4" />, className: 'bg-purple-100 text-purple-700 border-purple-200' },
-    out_for_delivery: { text: 'مع المندوب', icon: <MapPin className="w-4 h-4" />, className: 'bg-lime-100 text-lime-700 border-lime-200' },
-    delivered: { text: 'تم التسليم', icon: <PackageCheck className="w-4 h-4" />, className: 'bg-green-100 text-green-700 border-green-200' },
-    cancelled: { text: 'ملغي', icon: <PackageX className="w-4 h-4" />, className: 'bg-red-100 text-red-700 border-red-200' },
-    paid: { text: 'مدفوع', icon: <CheckCircle className="w-4 h-4" />, className: 'bg-green-100 text-green-700 border-green-200' },
+const statusConfig: { [key in OrderStatus]: { text: string; icon: React.ElementType; color: string; bg: string } } = {
+    pending: { text: 'قيد التجهيز', icon: Clock, color: 'text-yellow-700', bg: 'bg-yellow-100' },
+    processed: { text: 'تم التنفيذ', icon: CheckCircle, color: 'text-cyan-700', bg: 'bg-cyan-100' },
+    ready: { text: 'تم التجهيز', icon: Package, color: 'text-indigo-700', bg: 'bg-indigo-100' },
+    shipped: { text: 'تم الشحن', icon: Truck, color: 'text-blue-700', bg: 'bg-blue-100' },
+    arrived_dubai: { text: 'وصلت دبي', icon: Plane, color: 'text-orange-700', bg: 'bg-orange-100' },
+    arrived_benghazi: { text: 'وصلت بنغازي', icon: Building, color: 'text-teal-700', bg: 'bg-teal-100' },
+    arrived_tripoli: { text: 'وصلت طرابلس', icon: Building, color: 'text-purple-700', bg: 'bg-purple-100' },
+    out_for_delivery: { text: 'مع المندوب', icon: MapPin, color: 'text-lime-700', bg: 'bg-lime-100' },
+    delivered: { text: 'تم التسليم', icon: PackageCheck, color: 'text-green-700', bg: 'bg-green-100' },
+    cancelled: { text: 'ملغي', icon: PackageX, color: 'text-red-600', bg: 'bg-red-100' },
+    paid: { text: 'مدفوع', icon: CheckCircle, color: 'text-green-700', bg: 'bg-green-100' },
 };
 
-const OrderCard = ({ order }: { order: Order }) => {
-    const { toast } = useToast();
+const tabs = [
+    { value: 'all', label: 'الكل' },
+    { value: 'pending', label: 'الحالية' },
+    { value: 'delivered', label: 'المسلمة' },
+    { value: 'cancelled', label: 'الملغية' },
+];
 
-    const copyToClipboard = (text: string) => {
+const OrderCard = ({ order, index }: { order: Order; index: number }) => {
+    const { toast } = useToast();
+    const cfg = statusConfig[order.status];
+    const StatusIcon = cfg.icon;
+
+    const copyToClipboard = (e: React.MouseEvent, text: string) => {
+        e.preventDefault();
         navigator.clipboard.writeText(text).then(() => {
-            toast({
-                title: "تم النسخ!",
-                description: "تم نسخ كود التتبع إلى الحافظة.",
-            });
+            toast({ title: 'تم النسخ!', description: 'تم نسخ كود التتبع إلى الحافظة.' });
         });
     };
 
     return (
-        <Link href={`/dashboard/my-orders/${order.id}`} passHref>
-            <Card className="bg-card shadow-md cursor-pointer hover:border-primary/50 transition-colors">
-                <CardHeader className="pb-3">
-                    <div className="flex justify-between items-center">
-                        <CardTitle className="text-lg font-bold">رقم الفاتورة: {order.invoiceNumber}</CardTitle>
-                        <Badge variant="outline" className={`font-semibold text-xs py-1 px-2 gap-1.5 ${statusConfig[order.status].className}`}>
-                            {statusConfig[order.status].icon}
-                            {statusConfig[order.status].text}
-                        </Badge>
-                    </div>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground space-y-2 pt-2">
-                    <div className="flex justify-between">
-                        <span>تاريخ الطلب:</span>
-                        <span>{new Date(order.operationDate).toLocaleDateString('ar-LY')}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                        <span className="font-mono flex-grow">كود التتبع: {order.trackingId}</span>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.preventDefault(); copyToClipboard(order.trackingId); }}>
-                            <Copy className="h-4 w-4" />
-                        </Button>
-                    </div>
-                    <div className="flex justify-between font-medium text-foreground">
-                        <span>الدين المتبقي:</span>
-                        <span className={order.remainingAmount > 0 ? 'text-destructive' : 'text-green-600'}>
-                            {order.remainingAmount.toFixed(2)} د.ل
+        <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
+        >
+            <Link href={`/dashboard/my-orders/${order.id}`}>
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden active:scale-[0.98] transition-transform">
+                    {/* Card Header */}
+                    <div className="px-4 pt-4 pb-3 flex items-start justify-between">
+                        <div>
+                            <p className="text-xs text-muted-foreground mb-0.5">فاتورة #{order.invoiceNumber}</p>
+                            <p className="font-bold text-foreground text-sm leading-snug">{order.itemDescription || 'شحنة'}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{new Date(order.operationDate).toLocaleDateString('ar-LY')}</p>
+                        </div>
+                        <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${cfg.bg} ${cfg.color} shrink-0`}>
+                            <StatusIcon className="w-3 h-3" />
+                            {cfg.text}
                         </span>
                     </div>
-                </CardContent>
-                <CardFooter className="bg-secondary/50 p-3 flex justify-between items-center rounded-b-lg mt-2">
-                    <span className="text-sm font-semibold text-primary">الإجمالي</span>
-                    <span className="text-lg font-bold text-primary">{order.sellingPriceLYD.toFixed(2)} د.ل</span>
-                </CardFooter>
-            </Card>
-        </Link>
-    )
+
+                    {/* Tracking ID row */}
+                    <div className="mx-4 mb-3 bg-slate-50 dark:bg-slate-800 rounded-xl px-3 py-2 flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">كود التتبع</span>
+                        <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs font-bold text-foreground tracking-widest">{order.trackingId}</span>
+                            <button
+                                onClick={(e) => copyToClipboard(e, order.trackingId)}
+                                className="w-6 h-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600"
+                            >
+                                <Copy className="w-3 h-3 text-muted-foreground" />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Financial row */}
+                    <div className="px-4 pb-4 flex items-center justify-between">
+                        <div>
+                            <p className="text-xs text-muted-foreground">الإجمالي</p>
+                            <p className="font-bold text-primary text-base">{order.sellingPriceLYD.toLocaleString()} <span className="text-xs font-normal">د.ل</span></p>
+                        </div>
+                        <div className="text-left">
+                            <p className="text-xs text-muted-foreground">الدين المتبقي</p>
+                            <p className={`font-bold text-base ${order.remainingAmount > 0 ? 'text-red-500' : 'text-green-600'}`}>
+                                {order.remainingAmount.toLocaleString()} <span className="text-xs font-normal">د.ل</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </Link>
+        </motion.div>
+    );
 };
 
 const MyOrdersPage = () => {
@@ -91,18 +117,13 @@ const MyOrdersPage = () => {
             setIsLoading(true);
             try {
                 const loggedInUserStr = localStorage.getItem('loggedInUser');
-                if (!loggedInUserStr) {
-                    router.push('/login');
-                    return;
-                }
+                if (!loggedInUserStr) { router.push('/login'); return; }
                 const loggedInUser = JSON.parse(loggedInUserStr);
-
                 const allOrders = await getOrders();
-                const userOrders = allOrders.filter(order => order.userId === loggedInUser.id);
+                const userOrders = allOrders.filter(o => o.userId === loggedInUser.id);
                 setOrders(userOrders.sort((a, b) => new Date(b.operationDate).getTime() - new Date(a.operationDate).getTime()));
-
             } catch (error) {
-                console.error("Failed to fetch orders:", error);
+                console.error('Failed to fetch orders:', error);
             } finally {
                 setIsLoading(false);
             }
@@ -111,10 +132,10 @@ const MyOrdersPage = () => {
     }, [router]);
 
     const { totalAmount, totalRemainingDebt } = useMemo(() => {
-        return orders.reduce((acc, order) => {
-            if (order.status !== 'cancelled') {
-                acc.totalAmount += order.sellingPriceLYD;
-                acc.totalRemainingDebt += order.remainingAmount;
+        return orders.reduce((acc, o) => {
+            if (o.status !== 'cancelled') {
+                acc.totalAmount += o.sellingPriceLYD;
+                acc.totalRemainingDebt += o.remainingAmount;
             }
             return acc;
         }, { totalAmount: 0, totalRemainingDebt: 0 });
@@ -122,60 +143,100 @@ const MyOrdersPage = () => {
 
     const filteredOrders = useMemo(() => {
         if (activeTab === 'all') return orders;
-        if (activeTab === 'pending') {
-            return orders.filter(o => o.status !== 'delivered' && o.status !== 'cancelled');
-        }
-        return orders.filter(order => order.status === activeTab);
+        if (activeTab === 'pending') return orders.filter(o => o.status !== 'delivered' && o.status !== 'cancelled');
+        return orders.filter(o => o.status === activeTab);
     }, [activeTab, orders]);
 
-    const tabs = [
-        { value: "all", label: "الكل" },
-        { value: "pending", label: "الحالية" },
-        { value: "delivered", label: "المسلمة" },
-        { value: "cancelled", label: "الملغية" },
-    ];
+    const activeCount = orders.filter(o => o.status !== 'delivered' && o.status !== 'cancelled').length;
+    const deliveredCount = orders.filter(o => o.status === 'delivered').length;
 
     return (
-        <div className="min-h-screen bg-secondary/50 flex flex-col" dir="rtl">
-            <header className="bg-primary text-primary-foreground p-4 flex justify-between items-center shadow-md sticky top-0 z-10">
-                <h1 className="text-xl font-bold flex-grow text-center">طلباتي</h1>
-                <button onClick={() => router.back()} className="text-primary-foreground">
-                    <ArrowLeft className="w-6 h-6" />
-                </button>
-            </header>
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col pb-28" dir="rtl">
 
-            <main className="flex-grow p-4 space-y-4">
-                <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
-                    <TabsList className="grid w-full grid-cols-4 h-auto p-1.5">
-                        {tabs.map(tab => (
-                            <TabsTrigger key={tab.value} value={tab.value}>{tab.label}</TabsTrigger>
-                        ))}
-                    </TabsList>
-                    <div className="py-4 space-y-4">
-                        {isLoading ? (
-                            <div className="text-center text-muted-foreground py-10"><p>جاري تحميل الطلبات...</p></div>
-                        ) : filteredOrders.length > 0 ? (
-                            filteredOrders.map(order => <OrderCard key={order.id} order={order} />)
-                        ) : (
-                            <div className="text-center text-muted-foreground py-10">
-                                <p>لا توجد طلبات في هذه الفئة.</p>
-                            </div>
-                        )}
+            {/* Header */}
+            <div className="bg-gradient-to-br from-orange-500 to-amber-600 px-5 pt-12 pb-6">
+                <button onClick={() => router.back()} className="text-white/80 mb-4 flex items-center gap-1 text-sm">
+                    <ArrowRight className="w-4 h-4" />
+                    رجوع
+                </button>
+                <h1 className="text-2xl font-bold text-white mb-1">طلباتي</h1>
+                <p className="text-white/70 text-sm">{orders.length} طلب إجمالاً</p>
+            </div>
+
+            {/* Mini Stat Cards */}
+            <div className="px-5 -mt-4 grid grid-cols-3 gap-3 mb-4">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm p-3 text-center border border-slate-100 dark:border-slate-800">
+                    <p className="text-lg font-bold text-foreground">{orders.length}</p>
+                    <p className="text-[10px] text-muted-foreground">الكل</p>
+                </div>
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm p-3 text-center border border-slate-100 dark:border-slate-800">
+                    <p className="text-lg font-bold text-orange-600">{activeCount}</p>
+                    <p className="text-[10px] text-muted-foreground">حالية</p>
+                </div>
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm p-3 text-center border border-slate-100 dark:border-slate-800">
+                    <p className="text-lg font-bold text-green-600">{deliveredCount}</p>
+                    <p className="text-[10px] text-muted-foreground">مسلمة</p>
+                </div>
+            </div>
+
+            <main className="flex-grow px-5">
+                {/* Pill Tabs */}
+                <div className="flex gap-2 overflow-x-auto pb-1 mb-4 no-scrollbar">
+                    {tabs.map(tab => (
+                        <button
+                            key={tab.value}
+                            onClick={() => setActiveTab(tab.value)}
+                            className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${activeTab === tab.value
+                                    ? 'bg-orange-500 text-white shadow-sm'
+                                    : 'bg-white dark:bg-slate-800 text-muted-foreground border border-slate-200 dark:border-slate-700'
+                                }`}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Orders List */}
+                {isLoading ? (
+                    <div className="flex flex-col items-center justify-center py-20">
+                        <Loader2 className="w-8 h-8 animate-spin text-orange-400 mb-3" />
+                        <p className="text-sm text-muted-foreground">جاري تحميل الطلبات...</p>
                     </div>
-                </Tabs>
+                ) : filteredOrders.length > 0 ? (
+                    <div className="space-y-3">
+                        <AnimatePresence>
+                            {filteredOrders.map((order, i) => (
+                                <OrderCard key={order.id} order={order} index={i} />
+                            ))}
+                        </AnimatePresence>
+                    </div>
+                ) : (
+                    <div className="text-center py-20">
+                        <div className="w-16 h-16 bg-orange-50 dark:bg-orange-950/30 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <ClipboardList className="w-7 h-7 text-orange-400" />
+                        </div>
+                        <p className="text-sm text-muted-foreground">لا توجد طلبات في هذه الفئة</p>
+                    </div>
+                )}
             </main>
 
-            <footer className="sticky bottom-0 bg-card border-t-2 shadow-inner p-4 z-10 space-y-3">
-                <div className="flex justify-between items-center text-md">
-                    <span className="font-semibold text-foreground">الإجمالي الكلي للطلبات:</span>
-                    <span className="text-lg font-bold text-primary">{totalAmount.toFixed(2)} د.ل</span>
+            {/* Summary Footer */}
+            {!isLoading && orders.length > 0 && (
+                <div className="mx-5 mb-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-4">
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="text-center">
+                            <p className="text-xs text-muted-foreground mb-0.5">الإجمالي الكلي</p>
+                            <p className="text-base font-bold text-primary">{totalAmount.toLocaleString()} <span className="text-xs font-normal">د.ل</span></p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-xs text-muted-foreground mb-0.5">إجمالي الدين</p>
+                            <p className="text-base font-bold text-red-500">{totalRemainingDebt.toLocaleString()} <span className="text-xs font-normal">د.ل</span></p>
+                        </div>
+                    </div>
                 </div>
-                <Separator />
-                <div className="flex justify-between items-center text-md">
-                    <span className="font-semibold text-foreground">إجمالي الدين المتبقي:</span>
-                    <span className="text-lg font-bold text-destructive">{totalRemainingDebt.toFixed(2)} د.ل</span>
-                </div>
-            </footer>
+            )}
+
+            <MobileBottomNav items={navItems} />
         </div>
     );
 };

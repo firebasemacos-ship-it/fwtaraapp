@@ -1,21 +1,8 @@
 'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { 
-    ArrowLeft, 
-    Trash2, 
-    Plus,
-    ShoppingCart,
-    Truck,
-    CheckCircle,
-    Info,
-    Hash,
-    List,
-    Boxes,
-    FileText,
-    Loader2
+import {
+    ArrowRight, Trash2, Plus, ShoppingCart, Truck, CheckCircle,
+    Loader2, DollarSign, Package, Search, Home, ClipboardList, Users, Settings, Calculator
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState, useMemo, useEffect } from 'react';
@@ -23,42 +10,22 @@ import { getAppSettings } from '@/lib/actions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { predefinedItems } from '@/lib/items';
 import type { AppSettings } from '@/lib/types';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MobileBottomNav, BottomNavItem } from '@/components/ui/MobileBottomNav';
 
+const navItems: BottomNavItem[] = [
+    { label: 'الرئيسية', icon: Home, href: '/dashboard', exact: true },
+    { label: 'تتبع', icon: Search, href: '/dashboard/track-shipment' },
+    { label: 'طلباتي', icon: ClipboardList, href: '/dashboard/my-orders' },
+    { label: 'الدعم', icon: Users, href: '/dashboard/support-chat' },
+    { label: 'إعدادات', icon: Settings, href: '/dashboard/my-data' },
+];
 
-// --- Helper Components ---
-const IconWrapper = ({ children, className }: { children: React.ReactNode, className?: string }) => (
-  <div className={`flex h-10 w-10 items-center justify-center rounded-full ${className}`}>
-    {children}
-  </div>
-);
-
-const SectionTitle = ({ icon, title }: { icon: React.ReactNode, title: string }) => (
-    <div className="flex items-center gap-3 mb-4">
-        <IconWrapper className="bg-primary/10 text-primary">
-            {icon}
-        </IconWrapper>
-        <h2 className="text-xl font-bold">{title}</h2>
-    </div>
-);
-
-const SummaryRow = ({ icon, label, value, isFinal = false }: { icon: React.ReactNode, label: string, value: string, isFinal?: boolean }) => (
-    <div className={`flex items-center justify-between ${isFinal ? 'text-lg font-bold text-primary mt-2 pt-2 border-t' : 'text-md'}`}>
-        <div className="flex items-center gap-2 text-muted-foreground">
-            {icon}
-            <span>{label}</span>
-        </div>
-        <span className={isFinal ? 'text-primary' : 'text-foreground font-semibold'}>{value}</span>
-    </div>
-);
-
-
-// --- Main Component ---
 interface ShipmentItem {
     id: number;
-    itemId: string; // references key from predefinedItems
+    itemId: string;
     quantity: number;
 }
-
 
 const CalculateShipmentPage = () => {
     const router = useRouter();
@@ -67,35 +34,27 @@ const CalculateShipmentPage = () => {
         { id: 1, itemId: 'tshirt', quantity: 1 }
     ]);
     const [settings, setSettings] = useState<AppSettings | null>(null);
-    
+
     useEffect(() => {
-        const fetchRate = async () => {
-            const fetchedSettings = await getAppSettings();
-            setSettings(fetchedSettings);
-        };
-        fetchRate();
+        getAppSettings().then(setSettings);
     }, []);
 
     const exchangeRate = settings?.exchangeRate ?? 1;
     const pricePerKiloLYD = settings?.pricePerKiloLYD ?? 0;
 
-    const basketPriceLYD = useMemo(() => {
-        if (exchangeRate === 0) return 0;
-        return basketPriceUSD * exchangeRate;
-    }, [basketPriceUSD, exchangeRate]);
+    const basketPriceLYD = useMemo(() =>
+        exchangeRate === 0 ? 0 : basketPriceUSD * exchangeRate,
+        [basketPriceUSD, exchangeRate]);
 
-    const totalShippingCost = useMemo(() => {
-        return items.reduce((total, item) => {
+    const totalShippingCost = useMemo(() =>
+        items.reduce((total, item) => {
             const itemData = predefinedItems[item.itemId];
             if (!itemData) return total;
-            const itemShippingCost = itemData.weight * item.quantity * pricePerKiloLYD;
-            return total + itemShippingCost;
-        }, 0);
-    }, [items, pricePerKiloLYD]);
+            return total + itemData.weight * item.quantity * pricePerKiloLYD;
+        }, 0),
+        [items, pricePerKiloLYD]);
 
-    const finalTotal = useMemo(() => {
-        return basketPriceLYD + totalShippingCost;
-    }, [basketPriceLYD, totalShippingCost]);
+    const finalTotal = basketPriceLYD + totalShippingCost;
 
     const handleAddItem = () => {
         const newId = items.length > 0 ? Math.max(...items.map(i => i.id)) + 1 : 1;
@@ -103,152 +62,199 @@ const CalculateShipmentPage = () => {
     };
 
     const handleRemoveItem = (id: number) => {
-        if (items.length > 1) {
-            setItems(items.filter(item => item.id !== id));
-        }
+        if (items.length > 1) setItems(items.filter(item => item.id !== id));
     };
 
     const handleItemChange = (id: number, field: keyof Omit<ShipmentItem, 'id'>, value: string | number) => {
-        setItems(items.map(item =>
-            item.id === id ? { ...item, [field]: value } : item
-        ));
+        setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
     };
-    
+
     if (settings === null) {
         return (
-            <div className="flex h-screen items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin" />
+            <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+                <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
             </div>
-        )
+        );
     }
 
     return (
-        <div className="min-h-screen bg-secondary/30" dir="rtl">
-            <header className="bg-card p-4 flex justify-between items-center shadow-sm sticky top-0 z-10">
-                 <div className="text-center flex-grow">
-                    <h1 className="text-2xl font-bold">حاسبة تكلفة الطلبية</h1>
-                    <p className="text-sm text-muted-foreground">احسب تكلفة شحنتك ومنتجاتك بسهولة</p>
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => router.back()}>
-                    <ArrowLeft className="w-6 h-6" />
-                </Button>
-            </header>
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col pb-28" dir="rtl">
 
-            <main className="p-4 sm:p-6 max-w-4xl mx-auto space-y-6">
-                <Card className="shadow-lg border-t-4 border-primary">
-                    <CardContent className="p-6 space-y-8">
-                        
-                        {/* Basket Price Section */}
+            {/* Header */}
+            <div className="bg-gradient-to-br from-emerald-500 to-green-600 px-5 pt-12 pb-8">
+                <button onClick={() => router.back()} className="text-white/80 mb-4 flex items-center gap-1 text-sm">
+                    <ArrowRight className="w-4 h-4" />
+                    رجوع
+                </button>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold text-white mb-1">حاسبة الشحن</h1>
+                        <p className="text-white/70 text-sm">احسب تكلفة طلبيتك بسهولة</p>
+                    </div>
+                    <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center border border-white/30">
+                        <Calculator className="w-6 h-6 text-white" />
+                    </div>
+                </div>
+
+                {/* Rate pills */}
+                <div className="flex gap-2 mt-4">
+                    <div className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-white text-xs border border-white/30">
+                        1$ = {exchangeRate.toFixed(2)} د.ل
+                    </div>
+                    <div className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-white text-xs border border-white/30">
+                        1 كجم = {pricePerKiloLYD.toFixed(2)} د.ل
+                    </div>
+                </div>
+            </div>
+
+            <main className="flex-grow px-5 -mt-4 space-y-4">
+
+                {/* Basket Price Card */}
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-950/30 rounded-xl flex items-center justify-center">
+                            <ShoppingCart className="w-4 h-4 text-emerald-600" />
+                        </div>
+                        <p className="font-bold text-sm text-foreground">سعر السلة</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        {/* USD input */}
                         <div>
-                            <SectionTitle icon={<ShoppingCart size={22} />} title="سعر السلة" />
-                             <div className="text-xs text-muted-foreground mb-2">
-                                سعر الصرف: 1$ = {exchangeRate.toFixed(2)} د.ل | سعر الكيلو: 1 كجم = {pricePerKiloLYD.toFixed(2)} د.ل
-                            </div>
-                            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex flex-col md:flex-row items-center gap-4">
-                                <div className="flex-1 w-full space-y-2">
-                                     <label className="text-sm font-medium flex items-center gap-1.5 text-muted-foreground">
-                                        <FileText size={16} /> قيمة الطلبية بالدولار
-                                        <span className="text-xs text-blue-500 flex items-center gap-1">(<Info size={12}/> هام جدا: اضغط هنا)</span>
-                                    </label>
-                                    <div className="relative">
-                                         <Input 
-                                            type="number" 
-                                            placeholder="0.00" 
-                                            dir="ltr"
-                                            className="text-lg h-12 pr-8 bg-card"
-                                            value={basketPriceUSD || ''}
-                                            onChange={(e) => setBasketPriceUSD(parseFloat(e.target.value) || 0)}
-                                        />
-                                        <span className="absolute top-1/2 -translate-y-1/2 right-3 font-bold text-muted-foreground">$</span>
-                                    </div>
-                                </div>
-                                <div className="text-3xl font-bold text-primary opacity-50 hidden md:block">=</div>
-                                <div className="flex-1 w-full space-y-2">
-                                     <label className="text-sm font-medium flex items-center gap-1.5 text-muted-foreground">
-                                       <Boxes size={16} /> القيمة بالدينار الليبي
-                                    </label>
-                                    <div className="relative">
-                                        <Input 
-                                            readOnly 
-                                            dir="ltr"
-                                            value={basketPriceLYD.toFixed(2)}
-                                            className="text-lg h-12 pl-10 bg-primary/10 text-primary font-bold"
-                                        />
-                                        <span className="absolute top-1/2 -translate-y-1/2 left-3 text-sm font-bold text-primary">د.ل</span>
-                                    </div>
-                                </div>
+                            <label className="text-xs text-muted-foreground mb-1.5 block">القيمة بالدولار</label>
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    placeholder="0.00"
+                                    dir="ltr"
+                                    className="w-full h-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 pl-8 text-base font-semibold text-foreground outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-200"
+                                    value={basketPriceUSD || ''}
+                                    onChange={(e) => setBasketPriceUSD(parseFloat(e.target.value) || 0)}
+                                />
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">$</span>
                             </div>
                         </div>
-
-                        {/* Shipping Cost Section */}
+                        {/* LYD output */}
                         <div>
-                            <div className="flex justify-between items-center mb-4">
-                                <SectionTitle icon={<Truck size={22}/>} title="تكلفة الشحن" />
-                                <Button onClick={handleAddItem} className="gap-1.5 rounded-full shadow-md">
-                                    <Plus size={16}/>
-                                    إضافة صنف
-                                </Button>
+                            <label className="text-xs text-muted-foreground mb-1.5 block">القيمة بالدينار</label>
+                            <div className="relative">
+                                <input
+                                    readOnly
+                                    dir="ltr"
+                                    value={basketPriceLYD.toFixed(2)}
+                                    className="w-full h-12 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/30 px-3 pr-12 text-base font-bold text-emerald-700 dark:text-emerald-400 outline-none"
+                                />
+                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-emerald-600">د.ل</span>
                             </div>
-                            <div className="space-y-3">
-                                <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-2 text-sm font-semibold text-muted-foreground">
-                                    <div className="col-span-5 flex items-center gap-2"><List size={16}/> الصنف</div>
-                                    <div className="col-span-3 flex items-center gap-2"><Hash size={16}/> الكمية</div>
-                                    <div className="col-span-3 flex items-center gap-2"><Truck size={16}/> تكلفة الشحن</div>
-                                    <div className="col-span-1"></div>
-                                </div>
-                                {items.map((item) => {
-                                    const itemData = predefinedItems[item.itemId];
-                                    const itemShippingCost = itemData ? (itemData.weight * item.quantity * pricePerKiloLYD) : 0;
-                                    return (
-                                        <div key={item.id} className="grid grid-cols-12 gap-x-4 gap-y-2 items-center p-3 bg-secondary/60 rounded-lg">
-                                            <div className="col-span-12 md:col-span-5">
-                                                <Select value={item.itemId} onValueChange={(value) => handleItemChange(item.id, 'itemId', value)}>
-                                                    <SelectTrigger className="bg-card">
-                                                        <SelectValue placeholder="اختر صنفًا..." />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {Object.entries(predefinedItems).map(([key, value]) => (
-                                                            <SelectItem key={key} value={key}>{value.label}</SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <div className="col-span-6 md:col-span-3">
-                                                 <Input
+                        </div>
+                    </div>
+                </div>
+
+                {/* Shipping Items Card */}
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-4">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-950/30 rounded-xl flex items-center justify-center">
+                                <Truck className="w-4 h-4 text-emerald-600" />
+                            </div>
+                            <p className="font-bold text-sm text-foreground">أصناف الشحن</p>
+                        </div>
+                        <button
+                            onClick={handleAddItem}
+                            className="flex items-center gap-1.5 bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold"
+                        >
+                            <Plus className="w-3.5 h-3.5" />
+                            إضافة صنف
+                        </button>
+                    </div>
+
+                    <div className="space-y-2.5">
+                        <AnimatePresence initial={false}>
+                            {items.map((item) => {
+                                const itemData = predefinedItems[item.itemId];
+                                const itemShippingCost = itemData ? itemData.weight * item.quantity * pricePerKiloLYD : 0;
+                                return (
+                                    <motion.div
+                                        key={item.id}
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3"
+                                    >
+                                        {/* Item selector */}
+                                        <div className="flex gap-2 mb-2">
+                                            <Select value={item.itemId} onValueChange={(v) => handleItemChange(item.id, 'itemId', v)}>
+                                                <SelectTrigger className="flex-grow h-10 text-sm bg-white dark:bg-slate-900 rounded-xl border-slate-200 dark:border-slate-700">
+                                                    <SelectValue placeholder="اختر صنفاً..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {Object.entries(predefinedItems).map(([key, val]) => (
+                                                        <SelectItem key={key} value={key}>{val.label}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <button
+                                                onClick={() => handleRemoveItem(item.id)}
+                                                className="w-10 h-10 bg-red-50 dark:bg-red-950/30 rounded-xl flex items-center justify-center flex-shrink-0"
+                                            >
+                                                <Trash2 className="w-4 h-4 text-red-500" />
+                                            </button>
+                                        </div>
+
+                                        {/* Quantity + cost */}
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex-grow">
+                                                <label className="text-[10px] text-muted-foreground mb-1 block">الكمية</label>
+                                                <input
                                                     type="number"
                                                     value={item.quantity}
                                                     onChange={(e) => handleItemChange(item.id, 'quantity', parseInt(e.target.value) || 1)}
                                                     min="1"
-                                                    className="bg-card"
+                                                    className="w-full h-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-sm text-center font-semibold outline-none"
                                                 />
                                             </div>
-                                            <div className="col-span-6 md:col-span-3 flex items-center justify-center font-bold text-primary">
-                                               {itemShippingCost.toFixed(2)} د.ل
-                                            </div>
-                                            <div className="col-span-12 md:col-span-1 flex justify-end">
-                                                <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleRemoveItem(item.id)}>
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
+                                            <div className="text-left flex-shrink-0">
+                                                <p className="text-[10px] text-muted-foreground mb-1">تكلفة الشحن</p>
+                                                <p className="text-base font-bold text-emerald-600">{itemShippingCost.toFixed(2)} <span className="text-xs font-normal text-muted-foreground">د.ل</span></p>
                                             </div>
                                         </div>
-                                    );
-                                })}
-                                <div className="flex justify-end items-center gap-4 px-4 py-2 text-md font-bold text-muted-foreground border-t mt-3 pt-3">
-                                    <span>إجمالي الشحن:</span>
-                                    <span className="text-primary">{totalShippingCost.toFixed(2)} د.ل</span>
-                                </div>
-                            </div>
-                        </div>
+                                    </motion.div>
+                                );
+                            })}
+                        </AnimatePresence>
+                    </div>
+                </div>
 
-                        {/* Summary Section */}
-                         <div className="bg-primary/5 border border-primary/20 rounded-lg p-6 space-y-3">
-                            <SummaryRow icon={<ShoppingCart size={18}/>} label="تكلفة المنتجات:" value={`${basketPriceLYD.toFixed(2)} د.ل`} />
-                            <SummaryRow icon={<Truck size={18}/>} label="تكلفة الشحن:" value={`${totalShippingCost.toFixed(2)} د.ل`} />
-                            <SummaryRow icon={<CheckCircle size={20}/>} label="الإجمالي النهائي:" value={`${finalTotal.toFixed(2)} د.ل`} isFinal={true} />
+                {/* Live Total Card */}
+                <motion.div
+                    key={finalTotal}
+                    initial={{ scale: 0.98 }}
+                    animate={{ scale: 1 }}
+                    className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-5 shadow-lg shadow-emerald-100 dark:shadow-emerald-900/30"
+                >
+                    <p className="text-white/70 text-xs mb-3 font-medium uppercase tracking-wide">ملخص التكلفة</p>
+                    <div className="space-y-2 mb-4">
+                        <div className="flex justify-between text-white/80 text-sm">
+                            <span>تكلفة المنتجات</span>
+                            <span className="font-semibold">{basketPriceLYD.toFixed(2)} د.ل</span>
                         </div>
-                    </CardContent>
-                </Card>
+                        <div className="flex justify-between text-white/80 text-sm">
+                            <span>تكلفة الشحن</span>
+                            <span className="font-semibold">{totalShippingCost.toFixed(2)} د.ل</span>
+                        </div>
+                    </div>
+                    <div className="border-t border-white/30 pt-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <CheckCircle className="w-5 h-5 text-white" />
+                            <span className="text-white font-bold">الإجمالي النهائي</span>
+                        </div>
+                        <span className="text-2xl font-bold text-white">{finalTotal.toFixed(2)} <span className="text-sm font-normal">د.ل</span></span>
+                    </div>
+                </motion.div>
+
             </main>
+
+            <MobileBottomNav items={navItems} />
         </div>
     );
 };

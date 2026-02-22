@@ -45,6 +45,7 @@ import { motion } from 'framer-motion';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { PremiumChart } from '@/components/ui/PremiumChart';
 import { PremiumDonutChart } from '@/components/ui/PremiumDonutChart';
+import UpdateModal from '@/components/admin/UpdateModal';
 
 const allDashboardItems = [
     {
@@ -150,8 +151,15 @@ const AdminDashboardPage = () => {
     const [chartData, setChartData] = useState<any[]>([]);
     const [recentOrders, setRecentOrders] = useState<Order[]>([]);
     const [isDailyDataLoading, setIsDailyDataLoading] = useState(true);
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
     useEffect(() => {
+        // Check if user has already seen and dismissed the update modal
+        const hasSeenUpdate = localStorage.getItem('hideUpdateModal_v1');
+        if (!hasSeenUpdate) {
+            setIsUpdateModalOpen(true);
+        }
+
         const fetchManagerData = async () => {
             const user = localStorage.getItem('loggedInUser');
             if (user) {
@@ -249,6 +257,13 @@ const AdminDashboardPage = () => {
 
     const hasReportsAccess = manager?.permissions?.includes('reports') || manager?.username === 'admin@fwtara.ly';
 
+    const handleCloseUpdateModal = (dontShowAgain: boolean) => {
+        if (dontShowAgain) {
+            localStorage.setItem('hideUpdateModal_v1', 'true');
+        }
+        setIsUpdateModalOpen(false);
+    };
+
     return (
         <motion.div
             variants={container}
@@ -312,7 +327,7 @@ const AdminDashboardPage = () => {
                                         </div>
                                     </div>
                                     <div className="relative z-10">
-                                        <h3 className="text-3xl font-bold tracking-tight mb-1">{isDailyDataLoading ? "..." : dailyData.revenue.toLocaleString()}</h3>
+                                        <h3 className="text-3xl font-bold tracking-tight mb-1">{isDailyDataLoading ? "..." : dailyData.revenue.toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-base font-medium opacity-80">د.ل</span></h3>
                                         <p className="text-primary-foreground/80 font-medium text-sm">إجمالي الإيرادات</p>
                                     </div>
                                 </div>
@@ -328,7 +343,7 @@ const AdminDashboardPage = () => {
                                         </div>
                                     </div>
                                     <div className="relative z-10">
-                                        <h3 className="text-3xl font-bold tracking-tight mb-1">{isDailyDataLoading ? "..." : dailyData.netProfit.toLocaleString()}</h3>
+                                        <h3 className="text-3xl font-bold tracking-tight mb-1">{isDailyDataLoading ? "..." : dailyData.netProfit.toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-base font-medium opacity-80">د.ل</span></h3>
                                         <p className="text-white/90 font-medium text-sm">صافي الأرباح</p>
                                     </div>
                                 </div>
@@ -343,7 +358,7 @@ const AdminDashboardPage = () => {
                                         </div>
                                     </div>
                                     <div className="relative z-10">
-                                        <h3 className="text-3xl font-bold text-foreground tracking-tight mb-1">{isDailyDataLoading ? "..." : dailyData.expenses.toLocaleString()}</h3>
+                                        <h3 className="text-3xl font-bold text-foreground tracking-tight mb-1">{isDailyDataLoading ? "..." : dailyData.expenses.toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-base font-medium text-muted-foreground">د.ل</span></h3>
                                         <p className="text-muted-foreground font-medium text-sm">المصاريف</p>
                                     </div>
                                 </div>
@@ -478,9 +493,9 @@ const AdminDashboardPage = () => {
                                             </div>
                                             <div className="w-24 text-center">
                                                 <span className={`text-[11px] font-bold px-3 py-1 rounded-full ${order.status === 'delivered' || order.status === 'paid' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' :
-                                                        order.status === 'cancelled' ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' :
-                                                            order.status === 'pending' ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400' :
-                                                                'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
+                                                    order.status === 'cancelled' ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' :
+                                                        order.status === 'pending' ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                                                            'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
                                                     }`}>
                                                     {statusTranslations[order.status] || order.status}
                                                 </span>
@@ -526,6 +541,11 @@ const AdminDashboardPage = () => {
                     ))}
                 </div>
             </div>
+
+            <UpdateModal
+                isOpen={isUpdateModalOpen}
+                onClose={handleCloseUpdateModal}
+            />
         </motion.div>
     );
 };
