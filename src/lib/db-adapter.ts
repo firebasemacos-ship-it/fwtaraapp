@@ -10,13 +10,39 @@ export const dbAdapter = {
     collection: (collectionName: string) => {
         return {
             getDocs: async () => {
-                const { data, error } = await supabase.from(collectionName).select('*');
-                if (error) {
-                    console.error(`Error getting docs from ${collectionName}:`, error);
-                    return { docs: [], size: 0, empty: true, forEach: () => { } };
+                let allData: any[] = [];
+                let from = 0;
+                const pageSize = 1000;
+                let keepFetching = true;
+
+                while (keepFetching) {
+                    const { data, error } = await supabase
+                        .from(collectionName)
+                        .select('*')
+                        .order('id', { ascending: true })
+                        .range(from, from + pageSize - 1);
+
+                    if (error) {
+                        console.error(`Error getting docs from ${collectionName} at range ${from}-${from + pageSize - 1}:`, error);
+                        if (allData.length === 0) {
+                            return { docs: [], size: 0, empty: true, forEach: () => { } };
+                        }
+                        break;
+                    }
+
+                    if (!data || data.length === 0) {
+                        keepFetching = false;
+                    } else {
+                        allData = [...allData, ...data];
+                        if (data.length < pageSize) {
+                            keepFetching = false;
+                        } else {
+                            from += pageSize;
+                        }
+                    }
                 }
 
-                const docs = data.map((doc: any) => ({
+                const docs = allData.map((doc: any) => ({
                     id: doc.id,
                     ...doc,
                     data: () => doc,
@@ -129,27 +155,50 @@ export const dbAdapter = {
 
     // query simulation
     query: async (collectionName: string, conditions: any[]) => {
-        let query: any = supabase.from(collectionName).select('*');
+        let allData: any[] = [];
+        let from = 0;
+        const pageSize = 1000;
+        let keepFetching = true;
 
-        for (const cond of conditions) {
-            if (cond.op === '==') {
-                query = query.eq(cond.field, cond.value);
-            } else if (cond.op === 'in') {
-                query = query.in(cond.field, cond.value);
-            } else if (cond.op === 'array-contains') {
-                // Postgres array contains
-                query = query.contains(cond.field, [cond.value]);
+        while (keepFetching) {
+            let query: any = supabase.from(collectionName).select('*');
+
+            for (const cond of conditions) {
+                if (cond.op === '==') {
+                    query = query.eq(cond.field, cond.value);
+                } else if (cond.op === 'in') {
+                    query = query.in(cond.field, cond.value);
+                } else if (cond.op === 'array-contains') {
+                    query = query.contains(cond.field, [cond.value]);
+                }
             }
-            // Add other ops as encountered
+
+            query = query
+                .order('id', { ascending: true })
+                .range(from, from + pageSize - 1);
+
+            const { data, error } = await query;
+            if (error) {
+                console.error(`Query error in ${collectionName} at range ${from}-${from + pageSize - 1}:`, error);
+                if (allData.length === 0) {
+                    return { docs: [], size: 0, empty: true, forEach: () => { } };
+                }
+                break;
+            }
+
+            if (!data || data.length === 0) {
+                keepFetching = false;
+            } else {
+                allData = [...allData, ...data];
+                if (data.length < pageSize) {
+                    keepFetching = false;
+                } else {
+                    from += pageSize;
+                }
+            }
         }
 
-        const { data, error } = await query;
-        if (error) {
-            console.error(`Query error in ${collectionName}:`, error);
-            return { docs: [], size: 0, empty: true, forEach: () => { } };
-        }
-
-        const docs = (data || []).map((doc: any) => ({
+        const docs = allData.map((doc: any) => ({
             id: doc.id,
             ...doc,
             data: () => doc,
