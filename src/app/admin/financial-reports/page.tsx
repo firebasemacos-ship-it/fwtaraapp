@@ -52,6 +52,8 @@ const statusConfig: { [key in OrderStatus]: { text: string; className: string } 
     arrived_dubai: { text: 'وصلت إلى دبي', className: 'bg-orange-50 text-orange-700 border-orange-100' },
     arrived_benghazi: { text: 'وصلت إلى بنغازي', className: 'bg-teal-50 text-teal-700 border-teal-100' },
     arrived_tripoli: { text: 'وصلت إلى طرابلس', className: 'bg-purple-50 text-purple-700 border-purple-100' },
+    office_pickup: { text: 'استلام فالمكتب', className: 'bg-amber-50 text-amber-800 border-amber-100' },
+    transferred_to_rep: { text: 'تحويل للمندوب', className: 'bg-sky-50 text-sky-700 border-sky-100' },
     out_for_delivery: { text: 'مع المندوب', className: 'bg-lime-50 text-lime-700 border-lime-100' },
     delivered: { text: 'تم التسليم', className: 'bg-green-50 text-green-700 border-green-100' },
     cancelled: { text: 'ملغي', className: 'bg-red-50 text-red-700 border-red-100' },

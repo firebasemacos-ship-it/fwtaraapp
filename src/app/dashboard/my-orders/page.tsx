@@ -1,7 +1,7 @@
 
 'use client';
 
-import { ArrowRight, PackageCheck, PackageX, Truck, Building, Package, Plane, CheckCircle, Clock, MapPin, Copy, Loader2, ClipboardList, Search, Home, Users, Settings } from 'lucide-react';
+import { ArrowRight, PackageCheck, PackageX, Truck, Building, Package, Plane, CheckCircle, Clock, MapPin, Copy, Loader2, ClipboardList, Search, Home, Users, Settings, Building2, UserCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useMemo, useState, useEffect } from 'react';
 import { Order, OrderStatus } from '@/lib/types';
@@ -27,6 +27,8 @@ const statusConfig: { [key in OrderStatus]: { text: string; icon: React.ElementT
     arrived_dubai: { text: 'وصلت دبي', icon: Plane, color: 'text-orange-700', bg: 'bg-orange-100' },
     arrived_benghazi: { text: 'وصلت بنغازي', icon: Building, color: 'text-teal-700', bg: 'bg-teal-100' },
     arrived_tripoli: { text: 'وصلت طرابلس', icon: Building, color: 'text-purple-700', bg: 'bg-purple-100' },
+    office_pickup: { text: 'استلام فالمكتب', icon: Building2, color: 'text-amber-700', bg: 'bg-amber-100' },
+    transferred_to_rep: { text: 'تحويل للمندوب', icon: UserCheck, color: 'text-sky-700', bg: 'bg-sky-100' },
     out_for_delivery: { text: 'مع المندوب', icon: MapPin, color: 'text-lime-700', bg: 'bg-lime-100' },
     delivered: { text: 'تم التسليم', icon: PackageCheck, color: 'text-green-700', bg: 'bg-green-100' },
     cancelled: { text: 'ملغي', icon: PackageX, color: 'text-red-600', bg: 'bg-red-100' },

@@ -33,6 +33,8 @@ const statusTranslations: Record<OrderStatus, string> = {
     arrived_dubai: 'وصل دبي',
     arrived_benghazi: 'وصل بنغازي',
     arrived_tripoli: 'وصل طرابلس',
+    office_pickup: 'استلام فالمكتب',
+    transferred_to_rep: 'تحويل للمندوب',
     out_for_delivery: 'مع المندوب',
     delivered: 'تم التسليم',
     cancelled: 'ملغي',

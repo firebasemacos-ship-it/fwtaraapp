@@ -96,7 +96,7 @@ export function RepresentativeDetails({ initialRepresentative, initialOrders, in
     const [tempSubOrders] = useState(initialTempSubOrders);
     const [filter, setFilter] = useState('all');
 
-    const pendingOrders = useMemo(() => orders.filter(o => o.status === 'out_for_delivery'), [orders]);
+    const pendingOrders = useMemo(() => orders.filter(o => o.status === 'out_for_delivery' || o.status === 'transferred_to_rep'), [orders]);
     const deliveredOrders = useMemo(() => orders.filter(o => o.status === 'delivered'), [orders]);
 
     const pendingAmount = useMemo(() => {

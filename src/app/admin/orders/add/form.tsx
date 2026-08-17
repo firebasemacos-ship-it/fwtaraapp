@@ -520,6 +520,8 @@ const AddOrderForm = () => {
                                     <SelectItem value="arrived_dubai">وصلت إلى دبي</SelectItem>
                                     <SelectItem value="arrived_benghazi">وصلت إلى بنغازي</SelectItem>
                                     <SelectItem value="arrived_tripoli">وصلت إلى طرابلس</SelectItem>
+                                    <SelectItem value="office_pickup">استلام فالمكتب</SelectItem>
+                                    <SelectItem value="transferred_to_rep">تحويل للمندوب</SelectItem>
                                     <SelectItem value="out_for_delivery">مع المندوب</SelectItem>
                                     <SelectItem value="delivered">تم التسليم</SelectItem>
                                     <SelectItem value="cancelled">ملغي</SelectItem>

@@ -117,7 +117,7 @@ export async function recalculateUserStats(userId: string): Promise<void> {
         let orderCount = 0;
 
         // 1. Calculate debt from regular orders
-        const activeStatuses: OrderStatus[] = ['pending', 'processed', 'ready', 'shipped', 'arrived_dubai', 'arrived_benghazi', 'arrived_tripoli', 'out_for_delivery', 'delivered', 'paid'];
+        const activeStatuses: OrderStatus[] = ['pending', 'processed', 'ready', 'shipped', 'arrived_dubai', 'arrived_benghazi', 'arrived_tripoli', 'office_pickup', 'transferred_to_rep', 'out_for_delivery', 'delivered', 'paid'];
         const userOrdersQuery = query(
             collection(db, ORDERS_COLLECTION),
             where("userId", "==", userId),

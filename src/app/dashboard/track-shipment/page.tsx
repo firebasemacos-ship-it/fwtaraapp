@@ -39,6 +39,8 @@ const statusConfig: { [key in OrderStatus]: { text: string; color: string; bg: s
     arrived_dubai: { text: 'وصلت إلى دبي', color: 'text-orange-600', bg: 'bg-orange-100' },
     arrived_benghazi: { text: 'وصلت إلى بنغازي', color: 'text-teal-600', bg: 'bg-teal-100' },
     arrived_tripoli: { text: 'وصلت إلى طرابلس', color: 'text-purple-600', bg: 'bg-purple-100' },
+    office_pickup: { text: 'استلام فالمكتب', color: 'text-amber-700', bg: 'bg-amber-100' },
+    transferred_to_rep: { text: 'تحويل للمندوب', color: 'text-sky-700', bg: 'bg-sky-100' },
     out_for_delivery: { text: 'مع المندوب', color: 'text-lime-700', bg: 'bg-lime-100' },
     delivered: { text: 'تم التسليم', color: 'text-green-700', bg: 'bg-green-100' },
     cancelled: { text: 'ملغي', color: 'text-red-600', bg: 'bg-red-100' },

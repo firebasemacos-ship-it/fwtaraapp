@@ -27,7 +27,9 @@ import {
     CreditCard,
     Weight,
     Package as PackageIcon,
-    ArrowLeft
+    ArrowLeft,
+    Building2,
+    UserCheck
 } from 'lucide-react';
 
 const statusConfig: { [key in OrderStatus]: { text: string; icon: React.ReactNode; className: string } } = {
@@ -38,6 +40,8 @@ const statusConfig: { [key in OrderStatus]: { text: string; icon: React.ReactNod
     arrived_dubai: { text: 'وصلت إلى دبي', icon: <Plane className="w-5 h-5" />, className: 'bg-orange-100 text-orange-700 border-orange-200' },
     arrived_benghazi: { text: 'وصلت إلى بنغازي', icon: <Building className="w-5 h-5" />, className: 'bg-teal-100 text-teal-700 border-teal-200' },
     arrived_tripoli: { text: 'وصلت إلى طرابلس', icon: <Building className="w-5 h-5" />, className: 'bg-purple-100 text-purple-700 border-purple-200' },
+    office_pickup: { text: 'استلام فالمكتب', icon: <Building2 className="w-5 h-5" />, className: 'bg-amber-100 text-amber-800 border-amber-200' },
+    transferred_to_rep: { text: 'تحويل للمندوب', icon: <UserCheck className="w-5 h-5" />, className: 'bg-sky-100 text-sky-700 border-sky-200' },
     out_for_delivery: { text: 'مع المندوب', icon: <MapPin className="w-5 h-5" />, className: 'bg-lime-100 text-lime-700 border-lime-200' },
     delivered: { text: 'تم التسليم', icon: <PackageCheck className="w-5 h-5" />, className: 'bg-green-100 text-green-700 border-green-200' },
     cancelled: { text: 'ملغي', icon: <PackageX className="w-5 h-5" />, className: 'bg-red-100 text-red-700 border-red-200' },

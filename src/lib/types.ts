@@ -38,6 +38,8 @@ export type OrderStatus =
   | 'arrived_dubai'
   | 'arrived_benghazi'
   | 'arrived_tripoli'
+  | 'office_pickup'
+  | 'transferred_to_rep'
   | 'out_for_delivery'
   | 'delivered'
   | 'cancelled'

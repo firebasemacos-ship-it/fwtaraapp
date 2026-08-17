@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MoreHorizontal, PlusCircle, Trash2, Edit, Truck, CheckCircle, Clock, DollarSign, CreditCard, Package, Loader2, UserPlus, UserX, Printer, Search } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Trash2, Edit, Truck, CheckCircle, Clock, DollarSign, CreditCard, Package, Loader2, UserPlus, UserX, Printer, Search, Building2, UserCheck } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -51,6 +51,8 @@ const statusConfig: { [key in OrderStatus]: { text: string; icon: React.ReactNod
     arrived_dubai: { text: 'وصلت إلى دبي', icon: <Package className="w-4 h-4" />, className: 'bg-orange-100 text-orange-700' },
     arrived_benghazi: { text: 'وصلت إلى بنغازي', icon: <Package className="w-4 h-4" />, className: 'bg-teal-100 text-teal-700' },
     arrived_tripoli: { text: 'وصلت إلى طرابلس', icon: <Package className="w-4 h-4" />, className: 'bg-purple-100 text-purple-700' },
+    office_pickup: { text: 'استلام فالمكتب', icon: <Building2 className="w-4 h-4" />, className: 'bg-amber-100 text-amber-800' },
+    transferred_to_rep: { text: 'تحويل للمندوب', icon: <UserCheck className="w-4 h-4" />, className: 'bg-sky-100 text-sky-700' },
     out_for_delivery: { text: 'مع المندوب', icon: <Truck className="w-4 h-4" />, className: 'bg-lime-100 text-lime-700' },
     delivered: { text: 'تم التسليم', icon: <CheckCircle className="w-4 h-4" />, className: 'bg-green-100 text-green-700' },
     cancelled: { text: 'ملغي', icon: <Trash2 className="w-4 h-4" />, className: 'bg-red-100 text-red-700' },

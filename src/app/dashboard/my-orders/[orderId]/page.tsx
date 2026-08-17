@@ -9,7 +9,7 @@ import {
     Loader2, ArrowRight, Clock, Truck, Building, Plane, MapPin,
     PackageCheck, PackageX, CheckCircle, User, Phone, Copy,
     DollarSign, CreditCard, Weight, Package as PackageIcon,
-    Tag, Receipt
+    Tag, Receipt, Building2, UserCheck
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { motion } from 'framer-motion';
@@ -22,6 +22,8 @@ const statusConfig: { [key in OrderStatus]: { text: string; icon: React.ElementT
     arrived_dubai: { text: 'وصلت إلى دبي', icon: Plane, color: 'text-orange-700', bg: 'bg-orange-100', gradient: 'from-orange-400 to-amber-600' },
     arrived_benghazi: { text: 'وصلت إلى بنغازي', icon: Building, color: 'text-teal-700', bg: 'bg-teal-100', gradient: 'from-teal-400 to-cyan-600' },
     arrived_tripoli: { text: 'وصلت إلى طرابلس', icon: Building, color: 'text-purple-700', bg: 'bg-purple-100', gradient: 'from-purple-400 to-violet-600' },
+    office_pickup: { text: 'استلام فالمكتب', icon: Building2, color: 'text-amber-700', bg: 'bg-amber-100', gradient: 'from-amber-400 to-yellow-600' },
+    transferred_to_rep: { text: 'تحويل للمندوب', icon: UserCheck, color: 'text-sky-700', bg: 'bg-sky-100', gradient: 'from-sky-400 to-blue-600' },
     out_for_delivery: { text: 'مع المندوب', icon: MapPin, color: 'text-lime-700', bg: 'bg-lime-100', gradient: 'from-lime-400 to-green-500' },
     delivered: { text: 'تم التسليم', icon: PackageCheck, color: 'text-green-700', bg: 'bg-green-100', gradient: 'from-green-400 to-emerald-600' },
     cancelled: { text: 'ملغي', icon: PackageX, color: 'text-red-600', bg: 'bg-red-100', gradient: 'from-red-400 to-rose-600' },
